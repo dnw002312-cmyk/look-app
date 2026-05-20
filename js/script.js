@@ -3,9 +3,7 @@
    API-backed version
    ============================================ */
 
-// Cambiar esta URL cuando hagas deploy a Railway
-// Ej: const API = 'https://look-backend.up.railway.app/api';
-const API = 'http://localhost:3001/api';
+const API = 'https://look-app-production.up.railway.app/api';
 
 async function api(path, options = {}) {
   const headers = { 'Content-Type': 'application/json' };

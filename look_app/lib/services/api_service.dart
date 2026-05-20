@@ -2,9 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  // Cambiar esta URL cuando el backend esté en Railway
-  // Ej: static const String _baseUrl = 'https://look-backend.up.railway.app/api';
-  static const String _baseUrl = 'http://localhost:3001/api';
+  static const String _baseUrl = 'https://look-app-production.up.railway.app/api';
   static String get base => _baseUrl;
   static String? _token;
 

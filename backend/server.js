@@ -199,5 +199,5 @@ app.post('/api/messages/:convId', auth, (req, res) => {
   res.json(all[req.params.convId]);
 });
 
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => console.log(`LOOK API running on http://localhost:${PORT}`));

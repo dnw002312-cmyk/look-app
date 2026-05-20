@@ -8,9 +8,13 @@ Marketplace de compra y venta de ropa (moda circular). Dos implementaciones:
 ## Estructura
 ```
 RopexChange/
-├── index.html              # Web: layout completo
+├── index.html              # Web: home (hero)
+├── catalogo.html           # Web: catálogo + categorías + filtros
+├── favoritos.html          # Web: favoritos
+├── contacto.html           # Web: formulario de contacto
 ├── css/style.css           # Web: estilos ARKET design system
-├── js/script.js            # Web: lógica completa
+├── js/layout.js            # Web: layout compartido (header, footer, modales)
+├── js/script.js            # Web: lógica global (auth, carrito, chat, etc.)
 ├── look_app/               # Flutter
 │   ├── pubspec.yaml
 │   └── lib/
@@ -85,6 +89,7 @@ Solo una: `rgba(0, 0, 0, 0.1) 0px 2px 10px 2px`
 Solo **light**. Sin modo oscuro.
 
 ## Web
+- El proyecto usa múltiples páginas HTML con layout compartido via `js/layout.js`
 - Abrir `index.html` directamente en navegador
 - Sin build, sin dependencias
 - Datos en `js/script.js` → arrays `PRODUCTS_DATA`, `USERS`, `CATEGORIES`

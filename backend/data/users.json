@@ -1,0 +1,54 @@
+[
+  {
+    "id": 1,
+    "name": "María García",
+    "email": "maria@email.com",
+    "photo": "woman",
+    "description": "Amante de la moda circular.",
+    "rating": 4.8,
+    "salesCount": 23,
+    "followers": 45,
+    "following": 12,
+    "avgResponseTime": "2h",
+    "joinDate": "2024-01-15"
+  },
+  {
+    "id": 2,
+    "name": "Carlos López",
+    "email": "carlos@email.com",
+    "photo": "man",
+    "description": "Ropa de marca a buen precio.",
+    "rating": 4.5,
+    "salesCount": 15,
+    "followers": 28,
+    "following": 8,
+    "avgResponseTime": "1h",
+    "joinDate": "2024-03-20"
+  },
+  {
+    "id": 3,
+    "name": "Ana Martínez",
+    "email": "ana@email.com",
+    "photo": "woman",
+    "description": "Vintage lover.",
+    "rating": 4.9,
+    "salesCount": 31,
+    "followers": 67,
+    "following": 22,
+    "avgResponseTime": "3h",
+    "joinDate": "2023-11-05"
+  },
+  {
+    "id": 1778915131375,
+    "name": "Yo",
+    "email": "yo@yo.com",
+    "photo": "person",
+    "description": "",
+    "rating": 0,
+    "salesCount": 0,
+    "followers": 0,
+    "following": 0,
+    "avgResponseTime": "—",
+    "joinDate": "2026-05-16"
+  }
+]

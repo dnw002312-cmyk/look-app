@@ -1,0 +1,43 @@
+import '../models/user.dart';
+
+const List<AppUser> allUsers = [
+  AppUser(
+    id: 1,
+    name: 'María García',
+    email: 'maria@email.com',
+    photo: 'woman',
+    description: 'Amante de la moda circular. Vendo ropa de mujer en buen estado. ¡Dale una segunda oportunidad a tus prendas favoritas!',
+    rating: 4.8,
+    salesCount: 23,
+    followers: 45,
+    following: 12,
+    avgResponseTime: '2h',
+    joinDate: '2024-01-15',
+  ),
+  AppUser(
+    id: 2,
+    name: 'Carlos López',
+    email: 'carlos@email.com',
+    photo: 'man',
+    description: 'Ropa de marca a buen precio. Especialista en moda masculina casual y formal.',
+    rating: 4.5,
+    salesCount: 15,
+    followers: 28,
+    following: 8,
+    avgResponseTime: '1h',
+    joinDate: '2024-03-20',
+  ),
+  AppUser(
+    id: 3,
+    name: 'Ana Martínez',
+    email: 'ana@email.com',
+    photo: 'woman',
+    description: 'Vintage lover. Busco y vendo piezas únicas de segunda mano. ¡Cada prenda tiene una historia!',
+    rating: 4.9,
+    salesCount: 31,
+    followers: 67,
+    following: 22,
+    avgResponseTime: '3h',
+    joinDate: '2023-11-05',
+  ),
+];

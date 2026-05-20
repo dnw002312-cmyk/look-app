@@ -1,0 +1,118 @@
+╔══════════════════════════════════════════════════════════════╗
+║                     LOOK — Instrucciones                    ║
+║          Compra y venta de ropa (moda circular)             ║
+╚══════════════════════════════════════════════════════════════╝
+
+├── 📂 RopexChange/
+│   ├── 📄 index.html              ← Web (HTML + CSS + JS)
+│   ├── 📂 css/
+│   ├── 📂 js/
+│   ├── 📂 look_app/               ← App Android/Windows (Flutter)
+│   ├── 📂 backend/                ← API REST (Express + JSON)
+│   └── 📄 INSTRUCCIONES.txt       ← Este archivo
+
+
+═══════════════════════════════════════════════════════════════
+               ▶️  LOCAL (desarrollo)
+═══════════════════════════════════════════════════════════════
+
+  Backend:
+    cd backend
+    npm install      ← solo la primera vez
+    npm start
+    → API en http://localhost:3001
+
+  Web:
+    start index.html
+    (con backend corriendo en localhost:3001)
+
+  Flutter:
+    cd look_app
+    flutter pub get
+    flutter run
+
+
+═══════════════════════════════════════════════════════════════
+                🚀 DEPLOY A PRODUCCIÓN
+═══════════════════════════════════════════════════════════════
+
+  ┌─────────────────────────────────────────────────────┐
+  │  1. BACKEND → RAILWAY (sin cambios de código)       │
+  └─────────────────────────────────────────────────────┘
+
+     a. Crea cuenta en railway.app y conecta GitHub
+     b. Nuevo proyecto → "Deploy from GitHub repo"
+     c. Root Directory: backend/
+     d. Railway detecta Express automáticamente
+     e. Obtienes URL: https://look-backend.up.railway.app
+
+     Railway persiste los archivos JSON sin problema.
+
+
+  ┌─────────────────────────────────────────────────────┐
+  │  2. WEB → NETLIFY (cambiar 1 línea)                │
+  └─────────────────────────────────────────────────────┘
+
+     a. Abrir js/script.js
+     b. Línea 7: cambiar URL de la API:
+        const API = 'https://look-backend.up.railway.app/api';
+     c. Subir raíz del repo (RopexChange/) a netlify.com
+     d. Netlify detecta sitio estático automáticamente
+     e. En Netlify: Site settings → Change site name
+        para tener un nombre bonito (ej: look-app)
+
+
+  ┌─────────────────────────────────────────────────────┐
+  │  3. FLUTTER → .EXE (cambiar 1 línea)               │
+  └─────────────────────────────────────────────────────┘
+
+     a. Abrir look_app/lib/services/api_service.dart
+     b. Línea 9: cambiar _baseUrl:
+        static const String _baseUrl = 'https://look-backend.up.railway.app/api';
+     c. Copiar a ruta sin acentos (build falla con "ó","é"):
+        Copy-Item -Path ".\look_app" -Destination "C:\temp\look_app" -Recurse
+        cd C:\temp\look_app
+        flutter clean && flutter pub get
+        flutter build windows --release
+     d. El .exe está en:
+        build\windows\x64\runner\Release\look_app.exe
+     e. Compartir la carpeta Release\ completa (~20 MB)
+
+
+═══════════════════════════════════════════════════════════════
+              💡 IMPORTANTE
+═══════════════════════════════════════════════════════════════
+
+  • Railway y Vercel tienen capa gratuita suficiente
+    para un prototipo universitario.
+
+  • Una vez desplegado, tu PC no necesita estar
+    encendida. Todo corre en la nube.
+
+  • Los datos se persisten en archivos JSON dentro
+    de Railway. Al reiniciar el servidor, los datos
+    no se pierden.
+
+
+═══════════════════════════════════════════════════════════════
+                      💰 MONEDA
+═══════════════════════════════════════════════════════════════
+
+  ₡ Colones costarricenses. Los precios están en CRC.
+
+
+═══════════════════════════════════════════════════════════════
+                   🔐 FUNCIONALIDADES
+═══════════════════════════════════════════════════════════════
+
+  • Auth (login/register) — requerido para ver productos
+  • Catálogo con filtros y búsqueda avanzada
+  • Detalle de producto con info del vendedor
+  • Favoritos
+  • Perfil de vendedor (rating, ventas, seguidores)
+  • Follow/unfollow vendedores
+  • Chat comprador-vendedor
+  • Subir producto
+  • Carrito de compras
+  • Precios en ₡ (colones costarricenses)
+  • Cerrar sesión

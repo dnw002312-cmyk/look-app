@@ -1,0 +1,10 @@
+node_modules/
+backend/.env
+look_app/.dart_tool/
+look_app/build/
+look_app/.packages
+look_app/.pub/
+look_app/pubspec.lock
+.DS_Store
+*.log
+.env

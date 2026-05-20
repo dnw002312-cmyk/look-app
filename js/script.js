@@ -850,8 +850,12 @@ async function initSession() {
     if (user) {
       currentUser = mapUser(user);
       localStorage.setItem('look_user', JSON.stringify(currentUser));
+      return;
     }
+    sb.auth.signOut();
   }
+  currentUser = null;
+  localStorage.removeItem('look_user');
 }
 
 async function initPage() {

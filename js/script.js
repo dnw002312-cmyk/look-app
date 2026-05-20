@@ -169,7 +169,8 @@ function updateAuthUI() {
   if (!authBtn) return;
   if (currentUser) {
     authBtn.innerHTML = `<span class="material-icons-outlined">${currentUser.photo || 'person'}</span> ${currentUser.name.split(' ')[0]} <button class="btn btn--outline" id="logoutBtn" style="margin-left:8px">Cerrar sesión</button>`;
-    authBtn.onclick = null;
+    authBtn.onclick = (e) => { if (!e.target.closest('#logoutBtn')) openSellerProfile(currentUser.id); };
+    authBtn.style.cursor = 'pointer';
   } else {
     authBtn.innerHTML = '<span class="material-icons-outlined">person</span> Iniciar sesión';
     authBtn.onclick = openAuth;

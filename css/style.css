@@ -108,6 +108,30 @@ h1, h2, h3, h4, h5, h6 {
   z-index: 1000;
 }
 
+@supports (padding-top: env(safe-area-inset-top)) {
+  .header {
+    padding-top: env(safe-area-inset-top);
+    height: calc(var(--header-h) + env(safe-area-inset-top));
+  }
+}
+
+/* ===== MAIN OFFSET FOR FIXED HEADER ===== */
+main {
+  padding-top: var(--header-h);
+}
+
+@supports (padding-top: env(safe-area-inset-top)) {
+  main {
+    padding-top: calc(var(--header-h) + env(safe-area-inset-top));
+  }
+}
+
+@supports (padding-top: env(safe-area-inset-top)) {
+  main {
+    padding-top: calc(var(--header-h) + env(safe-area-inset-top));
+  }
+}
+
 .header__inner {
   display: flex;
   align-items: center;
@@ -193,7 +217,7 @@ h1, h2, h3, h4, h5, h6 {
 
 /* ===== HERO ===== */
 .hero {
-  padding: calc(var(--header-h) + var(--space-64)) 0 var(--space-64);
+  padding: var(--space-64) 0;
   background: var(--color-canvas);
   min-height: 80vh;
   display: flex;
@@ -300,7 +324,7 @@ h1, h2, h3, h4, h5, h6 {
 
 /* ===== SECTIONS ===== */
 .section {
-  padding: var(--space-64) 0;
+  padding: var(--space-32) 0 var(--space-64);
 }
 
 .section--dark {
@@ -778,9 +802,21 @@ h1, h2, h3, h4, h5, h6 {
 
 /* ===== SEARCH SECTION ===== */
 .search-section {
+  position: fixed;
+  top: var(--header-h);
+  left: 0;
+  width: 100%;
   display: none;
   padding: var(--space-16) 0;
+  background: var(--color-canvas);
   border-bottom: 1px solid var(--color-hint);
+  z-index: 998;
+}
+
+@supports (padding-top: env(safe-area-inset-top)) {
+  .search-section {
+    top: calc(var(--header-h) + env(safe-area-inset-top));
+  }
 }
 
 .search__inner {
@@ -1430,6 +1466,16 @@ select:focus {
 }
 
 @media (max-width: 768px) {
+  .header__actions {
+    gap: var(--space-4);
+  }
+
+  .header-icon-btn,
+  .cart-btn {
+    padding: var(--space-4);
+    font-size: 1.1rem;
+  }
+
   .nav {
     position: fixed;
     top: var(--header-h);
@@ -1441,6 +1487,12 @@ select:focus {
     transform: translateY(-120%);
     transition: transform 0.3s ease;
     z-index: 999;
+  }
+
+  @supports (padding-top: env(safe-area-inset-top)) {
+    .nav {
+      top: calc(var(--header-h) + env(safe-area-inset-top));
+    }
   }
 
   .nav.open {

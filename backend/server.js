@@ -1,69 +1,36 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const fs = require('fs');
-const path = require('path');
+const supabase = require('./db');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-const DATA = path.join(__dirname, 'data');
-if (!fs.existsSync(DATA)) fs.mkdirSync(DATA, { recursive: true });
-
-function read(name) {
-  try { return JSON.parse(fs.readFileSync(path.join(DATA, name + '.json'), 'utf8')); }
-  catch { return []; }
-}
-function write(name, data) {
-  fs.writeFileSync(path.join(DATA, name + '.json'), JSON.stringify(data, null, 2));
-}
-
-// Seed
-if (!fs.existsSync(path.join(DATA, 'users.json'))) {
-  write('users', [
-    { id: 1, name: 'María García', email: 'maria@email.com', photo: 'woman', description: 'Amante de la moda circular.', rating: 4.8, salesCount: 23, followers: 45, following: 12, avgResponseTime: '2h', joinDate: '2024-01-15' },
-    { id: 2, name: 'Carlos López', email: 'carlos@email.com', photo: 'man', description: 'Ropa de marca a buen precio.', rating: 4.5, salesCount: 15, followers: 28, following: 8, avgResponseTime: '1h', joinDate: '2024-03-20' },
-    { id: 3, name: 'Ana Martínez', email: 'ana@email.com', photo: 'woman', description: 'Vintage lover.', rating: 4.9, salesCount: 31, followers: 67, following: 22, avgResponseTime: '3h', joinDate: '2023-11-05' },
-  ]);
-  write('products', [
-    { id: 1, name: 'Vestido floral verano', category: 'mujer', price: 45000, icon: 'skirt', sellerId: 1, size: 'M', color: 'Multicolor', brand: 'Zara', condition: 'nuevo', gender: 'mujer', style: 'casual', location: 'San José', description: 'Vestido floral perfecto para el verano.', datePosted: '2024-06-01', likes: 12 },
-    { id: 2, name: 'Chaqueta de cuero', category: 'hombre', price: 120000, icon: 'checkroom', sellerId: 2, size: 'L', color: 'Negro', brand: "Levi's", condition: 'poco uso', gender: 'hombre', style: 'casual', location: 'Heredia', description: 'Chaqueta de cuero auténtica.', datePosted: '2024-05-15', likes: 8 },
-    { id: 3, name: 'Bolso tote bag', category: 'accesorios', price: 60000, icon: 'handbag', sellerId: 1, size: 'Único', color: 'Marrón', brand: 'Mango', condition: 'nuevo', gender: 'mujer', style: 'elegante', location: 'San José', description: 'Bolso tote bag de Mango.', datePosted: '2024-06-10', likes: 5 },
-    { id: 4, name: 'Camisa lino blanca', category: 'hombre', price: 55000, icon: 'shirt', sellerId: 2, size: 'M', color: 'Blanco', brand: 'Massimo Dutti', condition: 'como nuevo', gender: 'hombre', style: 'formal', location: 'Heredia', description: 'Camisa de lino blanca.', datePosted: '2024-04-20', likes: 3 },
-    { id: 5, name: 'Falda plisada', category: 'mujer', price: 40000, icon: 'skirt', sellerId: 3, size: 'S', color: 'Azul', brand: 'H&M', condition: 'usado', gender: 'mujer', style: 'casual', location: 'Alajuela', description: 'Falda plisada azul.', datePosted: '2024-06-05', likes: 7 },
-    { id: 6, name: 'Gafas de sol aviador', category: 'accesorios', price: 35000, icon: 'sunglasses', sellerId: 3, size: 'Único', color: 'Dorado', brand: 'Ray-Ban', condition: 'como nuevo', gender: 'unisex', style: 'casual', location: 'Alajuela', description: 'Gafas aviador clásicas.', datePosted: '2024-05-01', likes: 15 },
-    { id: 7, name: 'Abrigo invernal largo', category: 'mujer', price: 150000, icon: 'checkroom', sellerId: 1, size: 'L', color: 'Gris', brand: 'Stradivarius', condition: 'poco uso', gender: 'mujer', style: 'elegante', location: 'San José', description: 'Abrigo largo gris.', datePosted: '2024-02-10', likes: 4 },
-    { id: 8, name: 'Zapatos casual cuero', category: 'hombre', price: 85000, icon: 'footsteps', sellerId: 2, size: '42', color: 'Marrón', brand: 'Camper', condition: 'poco uso', gender: 'hombre', style: 'casual', location: 'Heredia', description: 'Zapatos Camper de cuero.', datePosted: '2024-04-10', likes: 6 },
-    { id: 9, name: 'Sombrero tejido', category: 'accesorios', price: 25000, icon: 'hiking', sellerId: 3, size: 'Único', color: 'Beige', brand: 'El Corte Inglés', condition: 'nuevo', gender: 'unisex', style: 'casual', location: 'Alajuela', description: 'Sombrero de paja tejido.', datePosted: '2024-06-15', likes: 2 },
-    { id: 10, name: 'Jeans pitillo negro', category: 'mujer', price: 50000, icon: 'checkroom', sellerId: 3, size: '36', color: 'Negro', brand: 'Pull&Bear', condition: 'nuevo', gender: 'mujer', style: 'casual', location: 'Alajuela', description: 'Jeans pitillo negro.', datePosted: '2024-06-12', likes: 9 },
-    { id: 11, name: 'Bufanda de lana', category: 'accesorios', price: 20000, icon: 'checkroom', sellerId: 1, size: 'Único', color: 'Rojo', brand: 'Zara', condition: 'nuevo', gender: 'unisex', style: 'casual', location: 'San José', description: 'Bufanda de lana roja.', datePosted: '2024-01-20', likes: 1 },
-    { id: 12, name: 'Camiseta algodón básica', category: 'hombre', price: 25000, icon: 'shirt', sellerId: 2, size: 'L', color: 'Blanco', brand: 'Nike', condition: 'nuevo', gender: 'hombre', style: 'deportivo', location: 'Heredia', description: 'Camiseta Nike básica.', datePosted: '2024-06-08', likes: 3 },
-  ]);
-  write('carts', {});
-  write('favorites', {});
-  write('follows', {});
-  write('messages', {});
-}
-
 // ===== AUTH =====
-app.post('/api/auth/login', (req, res) => {
-  const { email } = req.body;
-  const users = read('users');
-  const user = users.find(u => u.email === email);
-  if (!user) return res.status(401).json({ error: 'Usuario no encontrado' });
-  const { password: _, ...safeUser } = user;
-  res.json({ token: String(user.id), user: safeUser });
+app.post('/api/auth/login', async (req, res) => {
+  try {
+    const { email } = req.body;
+    const { data: users, error } = await supabase.from('users').select('*').eq('email', email);
+    if (error) throw error;
+    if (!users || users.length === 0) return res.status(401).json({ error: 'Usuario no encontrado' });
+    const { password, ...safeUser } = users[0];
+    res.json({ token: String(safeUser.id), user: safeUser });
+  } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-app.post('/api/auth/register', (req, res) => {
-  const { name, email, password } = req.body;
-  const users = read('users');
-  if (users.find(u => u.email === email)) return res.status(400).json({ error: 'El correo ya existe' });
-  const newUser = { id: Date.now(), name, email, password, photo: 'person', description: '', rating: 0, salesCount: 0, followers: 0, following: 0, avgResponseTime: '—', joinDate: new Date().toISOString().split('T')[0] };
-  users.push(newUser);
-  write('users', users);
-  const { password: _, ...safeUser } = newUser;
-  res.json({ token: String(newUser.id), user: safeUser });
+app.post('/api/auth/register', async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
+    const { data: existing } = await supabase.from('users').select('id').eq('email', email);
+    if (existing && existing.length > 0) return res.status(400).json({ error: 'El correo ya existe' });
+    const { data: newUser, error } = await supabase.from('users').insert({
+      name, email, password, photo: 'person', join_date: new Date().toISOString().split('T')[0]
+    }).select().single();
+    if (error) throw error;
+    const { password: _, ...safeUser } = newUser;
+    res.json({ token: String(safeUser.id), user: safeUser });
+  } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 function auth(req, res, next) {
@@ -74,153 +41,242 @@ function auth(req, res, next) {
 }
 
 // ===== PRODUCTS =====
-app.get('/api/products', (req, res) => {
-  let list = [...read('products')];
-  const { category, query, size, color, brand, condition, minPrice, maxPrice } = req.query;
-  if (category && category !== 'todas') list = list.filter(p => p.category === category);
-  if (query) { const q = query.toLowerCase(); list = list.filter(p => p.name.toLowerCase().includes(q) || p.brand?.toLowerCase().includes(q)); }
-  if (size) list = list.filter(p => p.size === size);
-  if (color) list = list.filter(p => p.color === color);
-  if (brand) list = list.filter(p => p.brand === brand);
-  if (condition) list = list.filter(p => p.condition === condition);
-  if (minPrice) list = list.filter(p => p.price >= parseInt(minPrice));
-  if (maxPrice) list = list.filter(p => p.price <= parseInt(maxPrice));
-  res.json(list);
+app.get('/api/products', async (req, res) => {
+  try {
+    let query = supabase.from('products').select('*');
+    const { category, query: q, size, color, brand, condition, minPrice, maxPrice } = req.query;
+    if (category && category !== 'todas') query = query.eq('category', category);
+    if (q) query = query.or(`name.ilike.%${q}%,brand.ilike.%${q}%`);
+    if (size) query = query.eq('size', size);
+    if (color) query = query.eq('color', color);
+    if (brand) query = query.eq('brand', brand);
+    if (condition) query = query.eq('condition', condition);
+    if (minPrice) query = query.gte('price', parseInt(minPrice));
+    if (maxPrice) query = query.lte('price', parseInt(maxPrice));
+    query = query.order('date_posted', { ascending: false });
+    const { data, error } = await query;
+    if (error) throw error;
+    res.json(data || []);
+  } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-app.get('/api/products/:id', (req, res) => {
-  const p = read('products').find(x => x.id === parseInt(req.params.id));
-  if (!p) return res.status(404).json({ error: 'No encontrado' });
-  res.json(p);
+app.get('/api/products/:id', async (req, res) => {
+  try {
+    const { data, error } = await supabase.from('products').select('*').eq('id', parseInt(req.params.id)).single();
+    if (error || !data) return res.status(404).json({ error: 'No encontrado' });
+    res.json(data);
+  } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-app.post('/api/products', auth, (req, res) => {
-  const products = read('products');
-  const { name, price, description, category, size, color, brand, condition, icon } = req.body;
-  const newProduct = { id: Date.now(), name, price: parseInt(price), icon: icon || 'checkroom', sellerId: req.userId, size, color, brand, condition, gender: category === 'hombre' ? 'hombre' : 'mujer', style: 'casual', location: '', description, datePosted: new Date().toISOString().split('T')[0], likes: 0, category };
-  products.push(newProduct);
-  write('products', products);
-  res.json(newProduct);
+app.post('/api/products', auth, async (req, res) => {
+  try {
+    const { name, price, description, category, size, color, brand, condition, icon } = req.body;
+    const { data, error } = await supabase.from('products').insert({
+      name, category, price: parseInt(price), icon: icon || 'checkroom',
+      seller_id: req.userId, size, color, brand, condition, description,
+      date_posted: new Date().toISOString().split('T')[0]
+    }).select().single();
+    if (error) throw error;
+    res.json(data);
+  } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 // ===== USERS =====
-app.get('/api/users/:id', (req, res) => {
-  const user = read('users').find(u => u.id === parseInt(req.params.id));
-  if (!user) return res.status(404).json({ error: 'No encontrado' });
-  const { password: _, ...safeUser } = user;
-  res.json(safeUser);
+app.get('/api/users/:id', async (req, res) => {
+  try {
+    const { data, error } = await supabase.from('users').select('id, name, email, photo, description, rating, sales_count, followers, following, avg_response_time, join_date').eq('id', parseInt(req.params.id)).single();
+    if (error || !data) return res.status(404).json({ error: 'No encontrado' });
+    res.json(data);
+  } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-app.put('/api/users/profile', auth, (req, res) => {
-  const users = read('users');
-  const idx = users.findIndex(u => u.id === req.userId);
-  if (idx === -1) return res.status(404).json({ error: 'No encontrado' });
-  const { name, email, description, photo, currentPassword, newPassword } = req.body;
-  const user = users[idx];
-  if (name) user.name = name;
-  if (email) {
-    if (users.find(u => u.email === email && u.id !== req.userId)) return res.status(400).json({ error: 'El correo ya existe' });
-    user.email = email;
-  }
-  if (description !== undefined) user.description = description;
-  if (photo) user.photo = photo;
-  if (newPassword) {
-    user.password = newPassword;
-  }
-  write('users', users);
-  res.json(user);
+app.put('/api/users/profile', auth, async (req, res) => {
+  try {
+    const { name, email, description, photo, newPassword } = req.body;
+    const { data: existing } = await supabase.from('users').select('*').eq('id', req.userId).single();
+    if (!existing) return res.status(404).json({ error: 'No encontrado' });
+    if (email && email !== existing.email) {
+      const { data: dup } = await supabase.from('users').select('id').eq('email', email).neq('id', req.userId);
+      if (dup && dup.length > 0) return res.status(400).json({ error: 'El correo ya existe' });
+    }
+    const updates = {};
+    if (name) updates.name = name;
+    if (email) updates.email = email;
+    if (description !== undefined) updates.description = description;
+    if (photo) updates.photo = photo;
+    if (newPassword) updates.password = newPassword;
+    const { data, error } = await supabase.from('users').update(updates).eq('id', req.userId).select('id, name, email, photo, description, rating, sales_count, followers, following, avg_response_time, join_date').single();
+    if (error) throw error;
+    res.json(data);
+  } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 // ===== CART =====
-app.get('/api/cart', auth, (req, res) => {
-  const carts = read('carts');
-  res.json(carts[req.userId] || []);
+app.get('/api/cart', auth, async (req, res) => {
+  try {
+    const { data, error } = await supabase.from('carts').select('product_id AS id, name, icon, effective_price AS "effectivePrice"').eq('user_id', req.userId);
+    if (error) throw error;
+    res.json(data || []);
+  } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-app.post('/api/cart', auth, (req, res) => {
-  const carts = read('carts');
-  if (!carts[req.userId]) carts[req.userId] = [];
-  const { productId } = req.body;
-  if (carts[req.userId].some(i => i.id === productId)) return res.status(400).json({ error: 'Ya está en el carrito' });
-  const product = read('products').find(p => p.id === productId);
-  if (!product) return res.status(404).json({ error: 'Producto no encontrado' });
-  carts[req.userId].push({ id: product.id, name: product.name, icon: product.icon, effectivePrice: product.price });
-  write('carts', carts);
-  res.json(carts[req.userId]);
+app.post('/api/cart', auth, async (req, res) => {
+  try {
+    const { productId } = req.body;
+    const { data: existing } = await supabase.from('carts').select('product_id').eq('user_id', req.userId).eq('product_id', productId);
+    if (existing && existing.length > 0) return res.status(400).json({ error: 'Ya está en el carrito' });
+    const { data: product } = await supabase.from('products').select('id, name, icon, price').eq('id', productId).single();
+    if (!product) return res.status(404).json({ error: 'Producto no encontrado' });
+    const { error } = await supabase.from('carts').insert({
+      user_id: req.userId, product_id: product.id,
+      name: product.name, icon: product.icon, effective_price: product.price
+    });
+    if (error) throw error;
+    const { data: items } = await supabase.from('carts').select('product_id AS id, name, icon, effective_price AS "effectivePrice"').eq('user_id', req.userId);
+    res.json(items || []);
+  } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-app.delete('/api/cart/:productId', auth, (req, res) => {
-  const carts = read('carts');
-  if (carts[req.userId]) carts[req.userId] = carts[req.userId].filter(i => i.id !== parseInt(req.params.productId));
-  write('carts', carts);
-  res.json(carts[req.userId] || []);
+app.delete('/api/cart/:productId', auth, async (req, res) => {
+  try {
+    await supabase.from('carts').delete().eq('user_id', req.userId).eq('product_id', parseInt(req.params.productId));
+    const { data } = await supabase.from('carts').select('product_id AS id, name, icon, effective_price AS "effectivePrice"').eq('user_id', req.userId);
+    res.json(data || []);
+  } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-app.post('/api/cart/checkout', auth, (req, res) => {
-  const carts = read('carts');
-  carts[req.userId] = [];
-  write('carts', carts);
-  res.json({ ok: true });
+app.post('/api/cart/checkout', auth, async (req, res) => {
+  try {
+    await supabase.from('carts').delete().eq('user_id', req.userId);
+    res.json({ ok: true });
+  } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 // ===== FAVORITES =====
-app.get('/api/favorites', auth, (req, res) => {
-  const favs = read('favorites');
-  res.json(favs[req.userId] || []);
+app.get('/api/favorites', auth, async (req, res) => {
+  try {
+    const { data, error } = await supabase.from('favorites').select('product_id').eq('user_id', req.userId);
+    if (error) throw error;
+    res.json((data || []).map(r => r.product_id));
+  } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-app.post('/api/favorites/toggle', auth, (req, res) => {
-  const favs = read('favorites');
-  if (!favs[req.userId]) favs[req.userId] = [];
-  const { productId } = req.body;
-  const idx = favs[req.userId].indexOf(productId);
-  if (idx >= 0) favs[req.userId].splice(idx, 1);
-  else favs[req.userId].push(productId);
-  write('favorites', favs);
-  res.json(favs[req.userId]);
+app.post('/api/favorites/toggle', auth, async (req, res) => {
+  try {
+    const { productId } = req.body;
+    const { data: existing } = await supabase.from('favorites').select('product_id').eq('user_id', req.userId).eq('product_id', productId);
+    if (existing && existing.length > 0) {
+      await supabase.from('favorites').delete().eq('user_id', req.userId).eq('product_id', productId);
+    } else {
+      await supabase.from('favorites').insert({ user_id: req.userId, product_id: productId });
+    }
+    const { data } = await supabase.from('favorites').select('product_id').eq('user_id', req.userId);
+    res.json((data || []).map(r => r.product_id));
+  } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 // ===== FOLLOWS =====
-app.get('/api/follows', auth, (req, res) => {
-  const follows = read('follows');
-  res.json(follows[req.userId] || []);
+app.get('/api/follows', auth, async (req, res) => {
+  try {
+    const { data, error } = await supabase.from('follows').select('seller_id').eq('user_id', req.userId);
+    if (error) throw error;
+    res.json((data || []).map(r => r.seller_id));
+  } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-app.post('/api/follows/toggle', auth, (req, res) => {
-  const follows = read('follows');
-  if (!follows[req.userId]) follows[req.userId] = [];
-  const { sellerId } = req.body;
-  const idx = follows[req.userId].indexOf(sellerId);
-  if (idx >= 0) follows[req.userId].splice(idx, 1);
-  else follows[req.userId].push(sellerId);
-  write('follows', follows);
-  res.json(follows[req.userId]);
+app.post('/api/follows/toggle', auth, async (req, res) => {
+  try {
+    const { sellerId } = req.body;
+    const { data: existing } = await supabase.from('follows').select('seller_id').eq('user_id', req.userId).eq('seller_id', sellerId);
+    if (existing && existing.length > 0) {
+      await supabase.from('follows').delete().eq('user_id', req.userId).eq('seller_id', sellerId);
+    } else {
+      await supabase.from('follows').insert({ user_id: req.userId, seller_id: sellerId });
+    }
+    const { data } = await supabase.from('follows').select('seller_id').eq('user_id', req.userId);
+    res.json((data || []).map(r => r.seller_id));
+  } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 // ===== MESSAGES =====
-app.get('/api/messages', auth, (req, res) => {
-  const all = read('messages');
-  const convs = {};
-  Object.keys(all).forEach(key => {
-    const ids = key.split('-').map(Number);
-    if (ids.includes(req.userId)) convs[key] = all[key];
-  });
-  res.json(convs);
+app.get('/api/messages', auth, async (req, res) => {
+  try {
+    const userId = req.userId;
+    const { data, error } = await supabase
+      .from('messages')
+      .select('conv_id, from_user, text, time')
+      .or(`conv_id.ilike.%-${userId},conv_id.ilike.${userId}-%`);
+    if (error) throw error;
+    const convs = {};
+    for (const msg of data || []) {
+      if (!convs[msg.conv_id]) convs[msg.conv_id] = [];
+      convs[msg.conv_id].push({ from: msg.from_user, text: msg.text, time: msg.time });
+    }
+    res.json(convs);
+  } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-app.get('/api/messages/:convId', auth, (req, res) => {
-  const all = read('messages');
-  res.json(all[req.params.convId] || []);
+app.get('/api/messages/:convId', auth, async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('messages')
+      .select('from_user AS "from", text, time')
+      .eq('conv_id', req.params.convId)
+      .order('id', { ascending: true });
+    if (error) throw error;
+    res.json(data || []);
+  } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-app.post('/api/messages/:convId', auth, (req, res) => {
-  const all = read('messages');
-  if (!all[req.params.convId]) all[req.params.convId] = [];
-  const { text } = req.body;
-  all[req.params.convId].push({ from: req.userId, text, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) });
-  write('messages', all);
-  res.json(all[req.params.convId]);
+app.post('/api/messages/:convId', auth, async (req, res) => {
+  try {
+    const { text } = req.body;
+    const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const { error } = await supabase.from('messages').insert({
+      conv_id: req.params.convId, from_user: req.userId, text, time
+    });
+    if (error) throw error;
+    const { data } = await supabase
+      .from('messages')
+      .select('from_user AS "from", text, time')
+      .eq('conv_id', req.params.convId)
+      .order('id', { ascending: true });
+    res.json(data || []);
+  } catch (err) { res.status(500).json({ error: err.message }); }
 });
+
+// ===== STARTUP =====
+async function seed() {
+  const { count: userCount } = await supabase.from('users').select('*', { count: 'exact', head: true });
+  if (userCount && userCount > 0) return;
+
+  await supabase.from('users').insert([
+    { id: 1, name: 'María García', email: 'maria@email.com', password: 'pass', photo: 'woman', description: 'Amante de la moda circular. Vendo prendas que ya no uso.', rating: 4.8, sales_count: 23, followers: 45, following: 12, avg_response_time: '2h', join_date: '2024-01-15' },
+    { id: 2, name: 'Carlos López', email: 'carlos@email.com', password: 'pass', photo: 'man', description: 'Ropa de marca a buen precio. Todo original.', rating: 4.5, sales_count: 15, followers: 28, following: 8, avg_response_time: '1h', join_date: '2024-03-20' },
+    { id: 3, name: 'Ana Martínez', email: 'ana@email.com', password: 'pass', photo: 'woman', description: 'Vintage lover. Prendas únicas y sostenibles.', rating: 4.9, sales_count: 31, followers: 67, following: 22, avg_response_time: '3h', join_date: '2023-11-05' },
+  ]);
+
+  await supabase.from('products').insert([
+    { id: 1, name: 'Vestido floral verano', category: 'mujer', price: 45000, icon: 'skirt', seller_id: 1, size: 'M', color: 'Multicolor', brand: 'Zara', condition: 'nuevo', gender: 'mujer', style: 'casual', location: 'San José', description: 'Vestido floral perfecto para el verano.', date_posted: '2024-06-01', likes: 12 },
+    { id: 2, name: 'Chaqueta de cuero', category: 'hombre', price: 120000, icon: 'checkroom', seller_id: 2, size: 'L', color: 'Negro', brand: "Levi's", condition: 'poco uso', gender: 'hombre', style: 'casual', location: 'Heredia', description: 'Chaqueta de cuero auténtica.', date_posted: '2024-05-15', likes: 8 },
+    { id: 3, name: 'Bolso tote bag', category: 'accesorios', price: 60000, icon: 'handbag', seller_id: 1, size: 'Único', color: 'Marrón', brand: 'Mango', condition: 'nuevo', gender: 'mujer', style: 'elegante', location: 'San José', description: 'Bolso tote bag de Mango.', date_posted: '2024-06-10', likes: 5 },
+    { id: 4, name: 'Camisa lino blanca', category: 'hombre', price: 55000, icon: 'shirt', seller_id: 2, size: 'M', color: 'Blanco', brand: 'Massimo Dutti', condition: 'como nuevo', gender: 'hombre', style: 'formal', location: 'Heredia', description: 'Camisa de lino blanca.', date_posted: '2024-04-20', likes: 3 },
+    { id: 5, name: 'Falda plisada', category: 'mujer', price: 40000, icon: 'skirt', seller_id: 3, size: 'S', color: 'Azul', brand: 'H&M', condition: 'usado', gender: 'mujer', style: 'casual', location: 'Alajuela', description: 'Falda plisada azul.', date_posted: '2024-06-05', likes: 7 },
+    { id: 6, name: 'Gafas de sol aviador', category: 'accesorios', price: 35000, icon: 'sunglasses', seller_id: 3, size: 'Único', color: 'Dorado', brand: 'Ray-Ban', condition: 'como nuevo', gender: 'unisex', style: 'casual', location: 'Alajuela', description: 'Gafas aviador clásicas.', date_posted: '2024-05-01', likes: 15 },
+    { id: 7, name: 'Abrigo invernal largo', category: 'mujer', price: 150000, icon: 'checkroom', seller_id: 1, size: 'L', color: 'Gris', brand: 'Stradivarius', condition: 'poco uso', gender: 'mujer', style: 'elegante', location: 'San José', description: 'Abrigo largo gris.', date_posted: '2024-02-10', likes: 4 },
+    { id: 8, name: 'Zapatos casual cuero', category: 'hombre', price: 85000, icon: 'footsteps', seller_id: 2, size: '42', color: 'Marrón', brand: 'Camper', condition: 'poco uso', gender: 'hombre', style: 'casual', location: 'Heredia', description: 'Zapatos Camper de cuero.', date_posted: '2024-04-10', likes: 6 },
+    { id: 9, name: 'Sombrero tejido', category: 'accesorios', price: 25000, icon: 'hiking', seller_id: 3, size: 'Único', color: 'Beige', brand: 'El Corte Inglés', condition: 'nuevo', gender: 'unisex', style: 'casual', location: 'Alajuela', description: 'Sombrero de paja tejido.', date_posted: '2024-06-15', likes: 2 },
+    { id: 10, name: 'Jeans pitillo negro', category: 'mujer', price: 50000, icon: 'checkroom', seller_id: 3, size: '36', color: 'Negro', brand: 'Pull&Bear', condition: 'nuevo', gender: 'mujer', style: 'casual', location: 'Alajuela', description: 'Jeans pitillo negro.', date_posted: '2024-06-12', likes: 9 },
+    { id: 11, name: 'Bufanda de lana', category: 'accesorios', price: 20000, icon: 'checkroom', seller_id: 1, size: 'Único', color: 'Rojo', brand: 'Zara', condition: 'nuevo', gender: 'unisex', style: 'casual', location: 'San José', description: 'Bufanda de lana roja.', date_posted: '2024-01-20', likes: 1 },
+    { id: 12, name: 'Camiseta algodón básica', category: 'hombre', price: 25000, icon: 'shirt', seller_id: 2, size: 'L', color: 'Blanco', brand: 'Nike', condition: 'nuevo', gender: 'hombre', style: 'deportivo', location: 'Heredia', description: 'Camiseta Nike básica.', date_posted: '2024-06-08', likes: 3 },
+  ]);
+  console.log('Seed data inserted');
+}
 
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => console.log(`LOOK API running on http://localhost:${PORT}`));
+seed().then(() => {
+  app.listen(PORT, () => console.log(`LOOK API running on http://localhost:${PORT}`));
+}).catch(err => {
+  console.error('Startup failed:', err.message);
+  process.exit(1);
+});

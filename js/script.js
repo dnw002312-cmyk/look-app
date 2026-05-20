@@ -1,22 +1,25 @@
 /* ============================================
-   LOOK — Compra y venta de ropa (JS)
-   API-backed version
+   LOOK — Supabase direct client
    ============================================ */
 
-const API = 'https://look-app-production.up.railway.app/api';
+const SUPABASE_URL = 'https://dbsoyafdebycalaakdlz.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRic295YWZkZWJ5Y2FsYWFrZGx6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyODA4NDUsImV4cCI6MjA5NDg1Njg0NX0.a_ATmjgMO_P8pEcnMtK-zWuIja3ukGmVC2z7_3zMqyA';
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-async function api(path, options = {}) {
-  const headers = { 'Content-Type': 'application/json' };
-  const token = localStorage.getItem('look_token');
-  if (token) headers['Authorization'] = token;
-  const res = await fetch(API + path, { ...options, headers });
-  if (!res.ok) { const err = await res.json(); throw new Error(err.error); }
-  return res.json();
+async function supadata(promise) {
+  const { data, error } = await promise;
+  if (error) throw new Error(error.message);
+  return data;
 }
 
 function formatPrice(n) { return '\u20A1' + Number(n).toLocaleString('es-CR'); }
 
-// ===== SEED / FALLBACK DATA =====
+function mapUser(u) {
+  if (!u) return u;
+  return { ...u, salesCount: u.sales_count ?? u.salesCount ?? 0, avgResponseTime: u.avg_response_time ?? u.avgResponseTime ?? '—', joinDate: u.join_date ?? u.joinDate ?? '' };
+}
+
+// ===== FALLBACK DATA =====
 const USERS = [
   { id: 1, name: 'María García', email: 'maria@email.com', photo: 'woman', description: 'Amante de la moda circular. Vendo prendas que ya no uso pero están en perfecto estado.', rating: 4.8, salesCount: 23, followers: 45, following: 12, avgResponseTime: '2h', joinDate: '2024-01-15' },
   { id: 2, name: 'Carlos López', email: 'carlos@email.com', photo: 'man', description: 'Ropa de marca a buen precio. Todo original.', rating: 4.5, salesCount: 15, followers: 28, following: 8, avgResponseTime: '1h', joinDate: '2024-03-20' },
@@ -63,25 +66,37 @@ const $$ = (sel) => document.querySelectorAll(sel);
 // ===== DATA LOADING =====
 async function loadInitialData() {
   try {
-    products = await api('/products').catch(() => products);
-    if (currentUser) {
-      const [cartData, favs, follows, msgs] = await Promise.all([
-        api('/cart').catch(() => []),
-        api('/favorites').catch(() => []),
-        api('/follows').catch(() => []),
-        api('/messages').catch(() => ({})),
-      ]);
-      cart = Array.isArray(cartData) ? cartData : [];
-      favoriteIds = new Set(favs);
-      followingIds = new Set(follows);
-      messages = msgs;
+    const [productsData, cartData, favsData, followsData, msgsData] = await Promise.all([
+      supadata(supabase.from('products').select('*').order('date_posted', { ascending: false })).catch(() => null),
+      currentUser ? supadata(supabase.from('carts').select('product_id, name, icon, effective_price').eq('user_id', currentUser.id)).catch(() => []) : Promise.resolve([]),
+      currentUser ? supadata(supabase.from('favorites').select('product_id').eq('user_id', currentUser.id)).catch(() => []) : Promise.resolve([]),
+      currentUser ? supadata(supabase.from('follows').select('seller_id').eq('user_id', currentUser.id)).catch(() => []) : Promise.resolve([]),
+      currentUser ? supadata(supabase.from('messages').select('*').or(`conv_id.ilike.%-${currentUser.id},conv_id.ilike.${currentUser.id}-%`)).catch(() => []) : Promise.resolve([]),
+    ]);
+
+    if (productsData) products = productsData.map(p => ({
+      id: p.id, name: p.name, category: p.category, price: p.price, icon: p.icon,
+      sellerId: p.seller_id, size: p.size, color: p.color, brand: p.brand,
+      condition: p.condition, gender: p.gender, style: p.style, location: p.location,
+      description: p.description, datePosted: p.date_posted, likes: p.likes
+    }));
+    cart = (cartData || []).map(i => ({ id: i.product_id, name: i.name, icon: i.icon, effectivePrice: i.effective_price }));
+    favoriteIds = new Set((favsData || []).map(i => i.product_id));
+    followingIds = new Set((followsData || []).map(i => i.seller_id));
+
+    const convs = {};
+    for (const msg of msgsData || []) {
+      if (!convs[msg.conv_id]) convs[msg.conv_id] = [];
+      convs[msg.conv_id].push({ from: msg.from_user, text: msg.text, time: msg.time });
     }
+    messages = convs;
+
+    renderCart();
+    if (document.getElementById('productsContainer')) renderProducts();
+    if (document.getElementById('favoritesContainer')) renderFavorites();
   } catch (e) {
-    console.warn('API unavailable, using seed data');
+    console.warn('Error loading data:', e.message);
   }
-  renderCart();
-  if (document.getElementById('productsContainer')) renderProducts();
-  if (document.getElementById('favoritesContainer')) renderFavorites();
 }
 
 // ===== AUTH =====
@@ -107,10 +122,12 @@ async function handleLogin(e) {
   const email = $('#loginForm input[type="email"]').value;
   const password = $('#loginForm input[type="password"]').value;
   try {
-    const data = await api('/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) });
-    localStorage.setItem('look_token', data.token);
-    localStorage.setItem('look_user', JSON.stringify(data.user));
-    currentUser = data.user;
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) throw error;
+    const { data: user } = await supabase.from('users').select('*').eq('supabase_uid', data.user.id).single();
+    if (!user) throw new Error('Perfil no encontrado');
+    currentUser = mapUser(user);
+    localStorage.setItem('look_user', JSON.stringify(currentUser));
     updateAuthUI();
     closeAuth();
     await loadInitialData();
@@ -123,14 +140,19 @@ async function handleRegister(e) {
   e.preventDefault();
   const name = $('#registerForm input[type="text"]').value;
   const email = $('#registerForm input[type="email"]').value;
-  const pass = $('#registerForm input[type="password"]').value;
+  const pass = $$('#registerForm input[type="password"]')[0].value;
   const confirm = $$('#registerForm input[type="password"]')[1].value;
   if (pass !== confirm) { showFormError('#registerForm', 'Las contraseñas no coinciden'); return; }
   try {
-    const data = await api('/auth/register', { method: 'POST', body: JSON.stringify({ name, email, password: pass }) });
-    localStorage.setItem('look_token', data.token);
-    localStorage.setItem('look_user', JSON.stringify(data.user));
-    currentUser = data.user;
+    const { data, error } = await supabase.auth.signUp({ email, password: pass });
+    if (error) throw error;
+    const { data: newUser, error: insertErr } = await supabase.from('users').insert({
+      name, email, photo: 'person', supabase_uid: data.user.id,
+      join_date: new Date().toISOString().split('T')[0]
+    }).select().single();
+    if (insertErr) throw insertErr;
+    currentUser = mapUser(newUser);
+    localStorage.setItem('look_user', JSON.stringify(currentUser));
     updateAuthUI();
     closeAuth();
     await loadInitialData();
@@ -141,8 +163,8 @@ async function handleRegister(e) {
 
 function handleLogout() {
   currentUser = null;
-  localStorage.removeItem('look_token');
   localStorage.removeItem('look_user');
+  supabase.auth.signOut();
   updateAuthUI();
   location.reload();
 }
@@ -154,34 +176,25 @@ function handleProfileSubmit(e) {
   const email = $('#profileEmail')?.value?.trim();
   const description = $('#profileDesc')?.value?.trim();
   const photo = document.querySelector('input[name="photo"]:checked')?.value;
-  const newPassword = $('#profileNewPass')?.value;
-  const confirmPassword = $('#profileConfirmPass')?.value;
-  const currentPassword = $('#profileCurrentPass')?.value;
 
   let valid = true;
   const showErr = (id, msg) => { const el = $(id)?.nextElementSibling; if (el) { el.textContent = msg; setTimeout(() => el.textContent = '', 3000); } };
   if (!name) { showErr('#profileName', 'El nombre es obligatorio'); valid = false; }
   if (!email) { showErr('#profileEmail', 'El correo es obligatorio'); valid = false; }
   else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showErr('#profileEmail', 'Correo no válido'); valid = false; }
-  if (newPassword && newPassword.length < 6) { showErr('#profileNewPass', 'Mínimo 6 caracteres'); valid = false; }
-  if (newPassword && newPassword !== confirmPassword) { showErr('#profileConfirmPass', 'Las contraseñas no coinciden'); valid = false; }
   if (!valid) return;
-
-  const body = { name, email, description, photo };
-  if (newPassword) {
-    if (!currentPassword) { showErr('#profileNewPass', 'Ingresá tu contraseña actual'); return; }
-    body.newPassword = newPassword;
-    body.currentPassword = currentPassword;
-  }
-
-  saveProfile(body);
+  saveProfile({ name, email, description, photo });
 }
 
 async function saveProfile(data) {
+  if (!currentUser) return;
   try {
-    const updated = await api('/users/profile', { method: 'PUT', body: JSON.stringify(data) });
-    currentUser = updated;
-    localStorage.setItem('look_user', JSON.stringify(updated));
+    const { data: updated, error } = await supabase.from('users').update({
+      name: data.name, email: data.email, description: data.description, photo: data.photo
+    }).eq('id', currentUser.id).select().single();
+    if (error) throw error;
+    currentUser = mapUser(updated);
+    localStorage.setItem('look_user', JSON.stringify(currentUser));
     updateAuthUI();
     const success = document.getElementById('profileSuccess');
     if (success) { success.style.display = 'block'; setTimeout(() => success.style.display = 'none', 3000); }
@@ -349,16 +362,21 @@ function openProductDetail(id) {
 async function toggleFavorite(id) {
   if (!requireAuth()) return;
   try {
-    await api('/favorites/toggle', { method: 'POST', body: JSON.stringify({ productId: id }) });
-    favoriteIds = new Set(await api('/favorites'));
+    const { data: existing } = await supabase.from('favorites').select('product_id').eq('user_id', currentUser.id).eq('product_id', id);
+    if (existing && existing.length > 0) {
+      await supabase.from('favorites').delete().eq('user_id', currentUser.id).eq('product_id', id);
+      favoriteIds.delete(id);
+    } else {
+      await supabase.from('favorites').insert({ user_id: currentUser.id, product_id: id });
+      favoriteIds.add(id);
+    }
   } catch (e) {
     if (favoriteIds.has(id)) favoriteIds.delete(id); else favoriteIds.add(id);
   }
   renderProducts();
   renderFavorites();
   if ($('#productModal')?.classList.contains('open')) {
-    const p = products.find(pr => pr.id === id);
-    if (p) { $('#productDetailFav').innerHTML = favoriteIds.has(id) ? '<span class="material-icons-outlined" style="color:red">favorite</span> Quitar favorito' : '<span class="material-icons-outlined">favorite</span> Añadir favorito'; }
+    $('#productDetailFav').innerHTML = favoriteIds.has(id) ? '<span class="material-icons-outlined" style="color:red">favorite</span> Quitar favorito' : '<span class="material-icons-outlined">favorite</span> Añadir favorito';
   }
 }
 
@@ -366,8 +384,14 @@ async function toggleFavorite(id) {
 async function toggleFollow(sellerId) {
   if (!currentUser) { openAuth(); return; }
   try {
-    await api('/follows/toggle', { method: 'POST', body: JSON.stringify({ sellerId }) });
-    followingIds = new Set(await api('/follows'));
+    const { data: existing } = await supabase.from('follows').select('seller_id').eq('user_id', currentUser.id).eq('seller_id', sellerId);
+    if (existing && existing.length > 0) {
+      await supabase.from('follows').delete().eq('user_id', currentUser.id).eq('seller_id', sellerId);
+      followingIds.delete(sellerId);
+    } else {
+      await supabase.from('follows').insert({ user_id: currentUser.id, seller_id: sellerId });
+      followingIds.add(sellerId);
+    }
   } catch (e) {
     if (followingIds.has(sellerId)) followingIds.delete(sellerId); else followingIds.add(sellerId);
   }
@@ -469,8 +493,10 @@ async function sendMessage() {
   const text = input.value.trim();
   if (!text || !currentChatId || !currentUser) return;
   try {
-    await api('/messages/' + currentChatId, { method: 'POST', body: JSON.stringify({ text }) });
-    messages = await api('/messages');
+    const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    await supabase.from('messages').insert({ conv_id: currentChatId, from_user: currentUser.id, text, time });
+    if (!messages[currentChatId]) messages[currentChatId] = [];
+    messages[currentChatId].push({ from: currentUser.id, text, time });
   } catch (e) {
     if (!messages[currentChatId]) messages[currentChatId] = [];
     messages[currentChatId].push({ from: currentUser.id, text, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) });
@@ -483,7 +509,7 @@ async function sendMessage() {
 // ===== SEARCH =====
 function toggleSearch() {
   searchMode = !searchMode;
-  $('#searchSection').style.display = searchMode ? '' : 'none';
+  $('#searchSection').style.display = searchMode ? 'block' : 'none';
   if (!searchMode) { clearFilters(); }
 }
 
@@ -520,11 +546,22 @@ async function handleUpload(e) {
   if (!name || !price || !category) return;
   const iconList = { mujer: 'skirt', hombre: 'shirt', accesorios: 'sunglasses' };
   try {
-    const body = { name, price, description: desc, category, size, color, brand, condition, icon: iconList[category] || 'shirt', sellerId: currentUser.id };
-    await api('/products', { method: 'POST', body: JSON.stringify(body) });
-    products = await api('/products');
+    const { data: newProduct, error } = await supabase.from('products').insert({
+      name, category, price: parseInt(price), icon: iconList[category] || 'shirt',
+      seller_id: currentUser.id, size, color, brand, condition,
+      description: desc, date_posted: new Date().toISOString().split('T')[0]
+    }).select().single();
+    if (error) throw error;
+    products.push({
+      id: newProduct.id, name: newProduct.name, category: newProduct.category,
+      price: newProduct.price, icon: newProduct.icon, sellerId: newProduct.seller_id,
+      size: newProduct.size, color: newProduct.color, brand: newProduct.brand,
+      condition: newProduct.condition, gender: newProduct.gender, style: newProduct.style,
+      location: newProduct.location, description: newProduct.description,
+      datePosted: newProduct.date_posted, likes: newProduct.likes
+    });
   } catch (e) {
-    console.warn('Upload failed, adding locally');
+    console.warn('Upload failed:', e.message);
     const newProduct = {
       id: Date.now(), name, category, price, icon: iconList[category] || 'shirt',
       sellerId: currentUser.id, size, color, brand, condition,
@@ -545,10 +582,14 @@ async function addToCart(productId) {
   if (!product) return;
   if (cart.some(item => item.id === productId)) return;
   try {
-    await api('/cart', { method: 'POST', body: JSON.stringify({ productId }) });
-    cart = await api('/cart');
+    const { error } = await supabase.from('carts').insert({
+      user_id: currentUser.id, product_id: product.id,
+      name: product.name, icon: product.icon, effective_price: product.price
+    });
+    if (error && error.code !== '23505') throw error;
+    cart.push({ id: product.id, name: product.name, icon: product.icon, effectivePrice: product.price });
   } catch (e) {
-    cart.push({ id: product.id, name: product.name, icon: product.icon, type: 'buy', effectivePrice: product.price });
+    cart.push({ id: product.id, name: product.name, icon: product.icon, effectivePrice: product.price });
   }
   renderCart();
   renderProducts();
@@ -556,8 +597,8 @@ async function addToCart(productId) {
 
 async function removeFromCart(id) {
   try {
-    await api('/cart/' + id, { method: 'DELETE' });
-    cart = await api('/cart');
+    await supabase.from('carts').delete().eq('user_id', currentUser.id).eq('product_id', id);
+    cart = cart.filter(item => item.id !== id);
   } catch (e) {
     cart = cart.filter(item => item.id !== id);
   }
@@ -637,8 +678,6 @@ document.addEventListener('click', (e) => {
     renderChatList();
   }
 });
-
-
 
 document.addEventListener('click', (e) => {
   if (e.target.closest('.product-card__add')) {
@@ -758,13 +797,13 @@ document.addEventListener('click', (e) => {
 document.addEventListener('click', (e) => {
   if (!e.target.closest('#checkoutBtn')) return;
   if (cart.length === 0) return;
-  alert('¡Compra realizada con éxito! Recibirás un correo con los detalles.');
-  api('/cart/checkout', { method: 'POST' }).catch(() => {});
+  supabase.from('carts').delete().eq('user_id', currentUser.id).catch(() => {});
   cart = [];
   renderCart();
   renderProducts();
   document.getElementById('cartSidebar')?.classList.remove('open');
   document.getElementById('cartOverlay')?.classList.remove('open');
+  alert('¡Compra realizada con éxito! Recibirás un correo con los detalles.');
 });
 
 // Search
@@ -803,9 +842,21 @@ document.addEventListener('click', (e) => {
   if (e.target.closest('#uploadImageArea')) $('#uploadImage').click();
 });
 
-// ===== INIT (called by each page) =====
-function initPage() {
+// ===== INIT =====
+async function initSession() {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session) {
+    const { data: user } = await supabase.from('users').select('*').eq('supabase_uid', session.user.id).single();
+    if (user) {
+      currentUser = mapUser(user);
+      localStorage.setItem('look_user', JSON.stringify(currentUser));
+    }
+  }
+}
+
+async function initPage() {
   currentUser = JSON.parse(localStorage.getItem('look_user')) || null;
+  await initSession();
   updateAuthUI();
   loadInitialData();
 }

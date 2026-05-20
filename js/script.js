@@ -147,12 +147,56 @@ function handleLogout() {
   location.reload();
 }
 
+function handleProfileSubmit(e) {
+  e.preventDefault();
+  if (!currentUser) { openAuth(); return; }
+  const name = $('#profileName')?.value?.trim();
+  const email = $('#profileEmail')?.value?.trim();
+  const description = $('#profileDesc')?.value?.trim();
+  const photo = document.querySelector('input[name="photo"]:checked')?.value;
+  const newPassword = $('#profileNewPass')?.value;
+  const confirmPassword = $('#profileConfirmPass')?.value;
+  const currentPassword = $('#profileCurrentPass')?.value;
+
+  let valid = true;
+  const showErr = (id, msg) => { const el = $(id)?.nextElementSibling; if (el) { el.textContent = msg; setTimeout(() => el.textContent = '', 3000); } };
+  if (!name) { showErr('#profileName', 'El nombre es obligatorio'); valid = false; }
+  if (!email) { showErr('#profileEmail', 'El correo es obligatorio'); valid = false; }
+  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showErr('#profileEmail', 'Correo no válido'); valid = false; }
+  if (newPassword && newPassword.length < 6) { showErr('#profileNewPass', 'Mínimo 6 caracteres'); valid = false; }
+  if (newPassword && newPassword !== confirmPassword) { showErr('#profileConfirmPass', 'Las contraseñas no coinciden'); valid = false; }
+  if (!valid) return;
+
+  const body = { name, email, description, photo };
+  if (newPassword) {
+    if (!currentPassword) { showErr('#profileNewPass', 'Ingresá tu contraseña actual'); return; }
+    body.newPassword = newPassword;
+    body.currentPassword = currentPassword;
+  }
+
+  saveProfile(body);
+}
+
+async function saveProfile(data) {
+  try {
+    const updated = await api('/users/profile', { method: 'PUT', body: JSON.stringify(data) });
+    currentUser = updated;
+    localStorage.setItem('look_user', JSON.stringify(updated));
+    updateAuthUI();
+    const success = document.getElementById('profileSuccess');
+    if (success) { success.style.display = 'block'; setTimeout(() => success.style.display = 'none', 3000); }
+  } catch (err) {
+    const errorEl = document.querySelector('#profileForm .form-error') || $('#profileForm .form-group:last-child .form-error');
+    if (errorEl) { errorEl.textContent = err.message; setTimeout(() => errorEl.textContent = '', 3000); }
+  }
+}
+
 function updateAuthUI() {
   const authBtn = $('#authBtn');
   if (!authBtn) return;
   if (currentUser) {
     authBtn.innerHTML = `<span class="material-icons-outlined">${currentUser.photo || 'person'}</span> ${currentUser.name.split(' ')[0]} <button class="btn btn--outline" id="logoutBtn" style="margin-left:8px">Cerrar sesión</button>`;
-    authBtn.onclick = (e) => { if (!e.target.closest('#logoutBtn')) openSellerProfile(currentUser.id); };
+    authBtn.onclick = (e) => { if (!e.target.closest('#logoutBtn')) location.href = 'perfil.html'; };
     authBtn.style.cursor = 'pointer';
   } else {
     authBtn.innerHTML = '<span class="material-icons-outlined">person</span> Iniciar sesión';
@@ -650,6 +694,11 @@ document.addEventListener('submit', (e) => {
 // Upload form
 document.addEventListener('submit', (e) => {
   if (e.target.id === 'uploadForm') handleUpload(e);
+});
+
+// Profile form
+document.addEventListener('submit', (e) => {
+  if (e.target.id === 'profileForm') handleProfileSubmit(e);
 });
 
 // Filter tabs

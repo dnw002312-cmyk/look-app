@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mi Perfil — LOOK</title>
+  <link rel="icon" type="image/jpeg" href="assets/logo.jpeg" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet" />
+</head>
+<body>
+  <script src="js/layout.js"></script>
+  <script src="js/script.js"></script>
+  <script>
+    renderLayout('Mi Perfil');
+    document.getElementById('mainContent').innerHTML = `
+      <section class="section" style="min-height:80vh">
+        <div class="container" style="max-width:600px">
+          <h2 class="section__title"><span class="material-icons-outlined">person</span> Mi Perfil</h2>
+          <form class="profile-form" id="profileForm" style="display:flex;flex-direction:column;gap:16px">
+            <div class="form-group">
+              <label class="form-label">Icono</label>
+              <div style="display:flex;gap:10px;flex-wrap:wrap" id="photoSelect">
+                <label style="cursor:pointer"><input type="radio" name="photo" value="person" checked /><span class="material-icons-outlined">person</span></label>
+                <label style="cursor:pointer"><input type="radio" name="photo" value="woman" /><span class="material-icons-outlined">woman</span></label>
+                <label style="cursor:pointer"><input type="radio" name="photo" value="man" /><span class="material-icons-outlined">man</span></label>
+                <label style="cursor:pointer"><input type="radio" name="photo" value="face" /><span class="material-icons-outlined">face</span></label>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Nombre completo</label>
+              <input type="text" id="profileName" placeholder="Tu nombre" required />
+              <span class="form-error"></span>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Correo electrónico</label>
+              <input type="email" id="profileEmail" placeholder="tucorreo@email.com" required />
+              <span class="form-error"></span>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Descripción / Bio</label>
+              <textarea id="profileDesc" rows="3" placeholder="Cuéntanos sobre ti..."></textarea>
+              <span class="form-error"></span>
+            </div>
+            <fieldset style="border:1px solid var(--color-hint);padding:16px;display:flex;flex-direction:column;gap:12px">
+              <legend style="font-family:var(--font-primary);font-size:14px">Cambiar contraseña</legend>
+              <div class="form-group">
+                <label class="form-label">Contraseña actual</label>
+                <input type="password" id="profileCurrentPass" placeholder="Dejar vacío si no querés cambiarla" />
+                <span class="form-error"></span>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Nueva contraseña</label>
+                <input type="password" id="profileNewPass" placeholder="Mínimo 6 caracteres" minlength="6" />
+                <span class="form-error"></span>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Confirmar nueva contraseña</label>
+                <input type="password" id="profileConfirmPass" placeholder="Repetí la nueva contraseña" />
+                <span class="form-error"></span>
+              </div>
+            </fieldset>
+            <button type="submit" class="btn btn--primary btn--full">Guardar cambios</button>
+          </form>
+          <div id="profileSuccess" style="display:none;text-align:center;padding:20px;border:1px solid var(--color-success);color:var(--color-success);margin-top:16px"></div>
+        </div>
+      </section>
+    `;
+
+    initPage();
+
+    if (currentUser) {
+      document.getElementById('profileName').value = currentUser.name || '';
+      document.getElementById('profileEmail').value = currentUser.email || '';
+      document.getElementById('profileDesc').value = currentUser.description || '';
+      const photoRadio = document.querySelector('input[name="photo"][value="' + (currentUser.photo || 'person') + '"]');
+      if (photoRadio) photoRadio.checked = true;
+    }
+  </script>
+</body>
+</html>

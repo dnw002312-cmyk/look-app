@@ -51,17 +51,19 @@ app.post('/api/auth/login', (req, res) => {
   const users = read('users');
   const user = users.find(u => u.email === email);
   if (!user) return res.status(401).json({ error: 'Usuario no encontrado' });
-  res.json({ token: String(user.id), user });
+  const { password: _, ...safeUser } = user;
+  res.json({ token: String(user.id), user: safeUser });
 });
 
 app.post('/api/auth/register', (req, res) => {
-  const { name, email } = req.body;
+  const { name, email, password } = req.body;
   const users = read('users');
   if (users.find(u => u.email === email)) return res.status(400).json({ error: 'El correo ya existe' });
-  const newUser = { id: Date.now(), name, email, photo: 'person', description: '', rating: 0, salesCount: 0, followers: 0, following: 0, avgResponseTime: '—', joinDate: new Date().toISOString().split('T')[0] };
+  const newUser = { id: Date.now(), name, email, password, photo: 'person', description: '', rating: 0, salesCount: 0, followers: 0, following: 0, avgResponseTime: '—', joinDate: new Date().toISOString().split('T')[0] };
   users.push(newUser);
   write('users', users);
-  res.json({ token: String(newUser.id), user: newUser });
+  const { password: _, ...safeUser } = newUser;
+  res.json({ token: String(newUser.id), user: safeUser });
 });
 
 function auth(req, res, next) {
@@ -105,6 +107,27 @@ app.post('/api/products', auth, (req, res) => {
 app.get('/api/users/:id', (req, res) => {
   const user = read('users').find(u => u.id === parseInt(req.params.id));
   if (!user) return res.status(404).json({ error: 'No encontrado' });
+  const { password: _, ...safeUser } = user;
+  res.json(safeUser);
+});
+
+app.put('/api/users/profile', auth, (req, res) => {
+  const users = read('users');
+  const idx = users.findIndex(u => u.id === req.userId);
+  if (idx === -1) return res.status(404).json({ error: 'No encontrado' });
+  const { name, email, description, photo, currentPassword, newPassword } = req.body;
+  const user = users[idx];
+  if (name) user.name = name;
+  if (email) {
+    if (users.find(u => u.email === email && u.id !== req.userId)) return res.status(400).json({ error: 'El correo ya existe' });
+    user.email = email;
+  }
+  if (description !== undefined) user.description = description;
+  if (photo) user.photo = photo;
+  if (newPassword) {
+    user.password = newPassword;
+  }
+  write('users', users);
   res.json(user);
 });
 

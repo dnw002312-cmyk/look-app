@@ -10,6 +10,7 @@ function renderLayout(pageTitle) {
           <ul class="nav__list">
             <li><a href="catalogo.html" class="nav__link">Catálogo</a></li>
             <li><a href="favoritos.html" class="nav__link">Favoritos</a></li>
+            <li><a href="perfil.html" class="nav__link">Perfil</a></li>
             <li><a href="contacto.html" class="nav__link">Contacto</a></li>
           </ul>
         </nav>

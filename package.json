@@ -4,8 +4,8 @@
   "description": "LOOK backend API",
   "main": "backend/server.js",
   "scripts": {
-    "start": "node backend/server.js",
-    "dev": "node --watch backend/server.js"
+    "start": "node server.js",
+    "dev": "node --watch server.js"
   },
   "dependencies": {
     "express": "^4.18.2",

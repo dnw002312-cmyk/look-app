@@ -54,7 +54,6 @@ let favoriteIds = new Set();
 let followingIds = new Set();
 let messages = {};
 let searchMode = false;
-let currentView = 'catalogo';
 let currentChatId = null;
 
 // ===== DOM REFS =====
@@ -97,7 +96,6 @@ async function loadInitialData() {
   } catch (e) {
     console.warn('API unavailable, using seed data');
   }
-  renderProducts();
   renderCart();
 }
 
@@ -199,11 +197,7 @@ function renderCategories() {
 
 function getFilteredProducts() {
   let list = [...products];
-  if (currentView === 'favoritos') {
-    list = list.filter(p => favoriteIds.has(p.id));
-  } else {
-    list = list.filter(p => currentFilter === 'todas' || p.category === currentFilter);
-  }
+  list = list.filter(p => currentFilter === 'todas' || p.category === currentFilter);
   if (searchMode) {
     const q = ($('#searchInput')?.value || '').toLowerCase();
     if (q) list = list.filter(p => p.name.toLowerCase().includes(q) || p.brand?.toLowerCase().includes(q) || p.description?.toLowerCase().includes(q));
@@ -513,26 +507,6 @@ async function handleUpload(e) {
   renderProducts();
 }
 
-// ===== NAVIGATION =====
-function showView(view) {
-  if (view === 'favoritos' && !requireAuth()) return;
-  currentView = view;
-  const catalogSection = $('#catalogo');
-  const favSection = $('#favorites');
-  if (view === 'favoritos') {
-    catalogSection.style.display = 'none';
-    favSection.style.display = '';
-    renderFavorites();
-    setTimeout(() => favSection?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
-  } else {
-    catalogSection.style.display = '';
-    favSection.style.display = 'none';
-    renderProducts();
-    setTimeout(() => catalogSection?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
-  }
-  $$('.nav__link').forEach(l => l.classList.toggle('active', l.dataset.view === view));
-}
-
 // ===== CART =====
 async function addToCart(productId) {
   if (!requireAuth()) return;
@@ -630,10 +604,7 @@ document.addEventListener('click', (e) => {
   }
 });
 
-document.addEventListener('click', (e) => {
-  const target = e.target.closest('[data-view]');
-  if (target) { e.preventDefault(); showView(target.dataset.view); }
-});
+
 
 document.addEventListener('click', (e) => {
   if (e.target.closest('.product-card__add')) {
@@ -699,7 +670,6 @@ if (filterTabs) {
     filterTabs.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
     tab.classList.add('active');
     currentFilter = tab.dataset.filter;
-    showView('catalogo');
     renderProducts();
   });
 }
@@ -781,10 +751,6 @@ document.addEventListener('keydown', (e) => {
 document.addEventListener('click', (e) => {
   if (e.target.closest('#searchToggle')) { if (!requireAuth()) return; toggleSearch(); }
 });
-// Fav btn
-document.addEventListener('click', (e) => {
-  if (e.target.closest('#favBtn')) showView('favoritos');
-});
 // Upload btn
 document.addEventListener('click', (e) => {
   if (e.target.closest('#uploadBtn')) openUpload();
@@ -795,7 +761,9 @@ document.addEventListener('click', (e) => {
   if (e.target.closest('#uploadImageArea')) $('#uploadImage').click();
 });
 
-// ===== INIT =====
-renderCategories();
-updateAuthUI();
-loadInitialData();
+// ===== INIT (called by each page) =====
+function initPage() {
+  currentUser = JSON.parse(localStorage.getItem('look_user')) || null;
+  updateAuthUI();
+  loadInitialData();
+}

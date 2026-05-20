@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Catálogo — LOOK</title>
+  <link rel="icon" type="image/jpeg" href="assets/logo.jpeg" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet" />
+</head>
+<body>
+  <script src="js/layout.js"></script>
+  <script src="js/script.js"></script>
+  <script>
+    renderLayout('Catálogo');
+    document.getElementById('mainContent').innerHTML = `
+      <section class="section" id="categorias">
+        <div class="container">
+          <h2 class="section__title">Categorías</h2>
+          <p class="section__desc">Encuentra lo que buscas por tipo de prenda</p>
+          <div class="categories" id="categoriesContainer"><!-- JS render --></div>
+        </div>
+      </section>
+      <section class="section" id="catalogo">
+        <div class="container">
+          <h2 class="section__title">Catálogo</h2>
+          <p class="section__desc">Descubre, compra y vende. Tú decides.</p>
+          <div class="catalog__controls">
+            <div class="filter-tabs" id="filterTabs">
+              <button class="filter-tab active" data-filter="todas">Todas</button>
+              <button class="filter-tab" data-filter="mujer">Mujer</button>
+              <button class="filter-tab" data-filter="hombre">Hombre</button>
+              <button class="filter-tab" data-filter="accesorios">Accesorios</button>
+            </div>
+          </div>
+          <div class="products" id="productsContainer"><!-- JS render --></div>
+        </div>
+      </section>
+    `;
+    initPage();
+    renderCategories();
+    renderProducts();
+  </script>
+</body>
+</html>

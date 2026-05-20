@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contacto — LOOK</title>
+  <link rel="icon" type="image/jpeg" href="assets/logo.jpeg" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet" />
+</head>
+<body>
+  <script src="js/layout.js"></script>
+  <script src="js/script.js"></script>
+  <script>
+    renderLayout('Contacto');
+    document.getElementById('mainContent').innerHTML = `
+      <section class="section section--dark" id="contacto" style="min-height:60vh">
+        <div class="container">
+          <h2 class="section__title">¿Quieres vender?</h2>
+          <p class="section__desc">Cuéntanos qué tienes y te ayudamos a publicarlo</p>
+          <form class="contact-form" id="contactForm">
+            <div class="form-group"><input type="text" id="formName" placeholder="Tu nombre" required /><span class="form-error"></span></div>
+            <div class="form-group"><input type="email" id="formEmail" placeholder="Tu correo" required /><span class="form-error"></span></div>
+            <div class="form-group"><textarea id="formMessage" rows="5" placeholder="Describe lo que quieres vender..." required></textarea><span class="form-error"></span></div>
+            <button type="submit" class="btn btn--primary btn--full">Enviar mensaje</button>
+          </form>
+          <div class="contact-success" id="contactSuccess">¡Mensaje enviado! Te contactaremos pronto.</div>
+        </div>
+      </section>
+    `;
+    initPage();
+  </script>
+</body>
+</html>

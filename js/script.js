@@ -4,7 +4,7 @@
 
 const SUPABASE_URL = 'https://dbsoyafdebycalaakdlz.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRic295YWZkZWJ5Y2FsYWFrZGx6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyODA4NDUsImV4cCI6MjA5NDg1Njg0NX0.a_ATmjgMO_P8pEcnMtK-zWuIja3ukGmVC2z7_3zMqyA';
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 async function supadata(promise) {
   const { data, error } = await promise;
@@ -67,11 +67,11 @@ const $$ = (sel) => document.querySelectorAll(sel);
 async function loadInitialData() {
   try {
     const [productsData, cartData, favsData, followsData, msgsData] = await Promise.all([
-      supadata(supabase.from('products').select('*').order('date_posted', { ascending: false })).catch(() => null),
-      currentUser ? supadata(supabase.from('carts').select('product_id, name, icon, effective_price').eq('user_id', currentUser.id)).catch(() => []) : Promise.resolve([]),
-      currentUser ? supadata(supabase.from('favorites').select('product_id').eq('user_id', currentUser.id)).catch(() => []) : Promise.resolve([]),
-      currentUser ? supadata(supabase.from('follows').select('seller_id').eq('user_id', currentUser.id)).catch(() => []) : Promise.resolve([]),
-      currentUser ? supadata(supabase.from('messages').select('*').or(`conv_id.ilike.%-${currentUser.id},conv_id.ilike.${currentUser.id}-%`)).catch(() => []) : Promise.resolve([]),
+      supadata(sb.from('products').select('*').order('date_posted', { ascending: false })).catch(() => null),
+      currentUser ? supadata(sb.from('carts').select('product_id, name, icon, effective_price').eq('user_id', currentUser.id)).catch(() => []) : Promise.resolve([]),
+      currentUser ? supadata(sb.from('favorites').select('product_id').eq('user_id', currentUser.id)).catch(() => []) : Promise.resolve([]),
+      currentUser ? supadata(sb.from('follows').select('seller_id').eq('user_id', currentUser.id)).catch(() => []) : Promise.resolve([]),
+      currentUser ? supadata(sb.from('messages').select('*').or(`conv_id.ilike.%-${currentUser.id},conv_id.ilike.${currentUser.id}-%`)).catch(() => []) : Promise.resolve([]),
     ]);
 
     if (productsData) products = productsData.map(p => ({
@@ -122,9 +122,9 @@ async function handleLogin(e) {
   const email = $('#loginForm input[type="email"]').value;
   const password = $('#loginForm input[type="password"]').value;
   try {
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await sb.auth.signInWithPassword({ email, password });
     if (error) throw error;
-    const { data: user } = await supabase.from('users').select('*').eq('supabase_uid', data.user.id).single();
+    const { data: user } = await sb.from('users').select('*').eq('supabase_uid', data.user.id).single();
     if (!user) throw new Error('Perfil no encontrado');
     currentUser = mapUser(user);
     localStorage.setItem('look_user', JSON.stringify(currentUser));
@@ -144,9 +144,9 @@ async function handleRegister(e) {
   const confirm = $$('#registerForm input[type="password"]')[1].value;
   if (pass !== confirm) { showFormError('#registerForm', 'Las contraseñas no coinciden'); return; }
   try {
-    const { data, error } = await supabase.auth.signUp({ email, password: pass });
+    const { data, error } = await sb.auth.signUp({ email, password: pass });
     if (error) throw error;
-    const { data: newUser, error: insertErr } = await supabase.from('users').insert({
+    const { data: newUser, error: insertErr } = await sb.from('users').insert({
       name, email, photo: 'person', supabase_uid: data.user.id,
       join_date: new Date().toISOString().split('T')[0]
     }).select().single();
@@ -164,7 +164,7 @@ async function handleRegister(e) {
 function handleLogout() {
   currentUser = null;
   localStorage.removeItem('look_user');
-  supabase.auth.signOut();
+  sb.auth.signOut();
   updateAuthUI();
   location.reload();
 }
@@ -189,7 +189,7 @@ function handleProfileSubmit(e) {
 async function saveProfile(data) {
   if (!currentUser) return;
   try {
-    const { data: updated, error } = await supabase.from('users').update({
+    const { data: updated, error } = await sb.from('users').update({
       name: data.name, email: data.email, description: data.description, photo: data.photo
     }).eq('id', currentUser.id).select().single();
     if (error) throw error;
@@ -362,12 +362,12 @@ function openProductDetail(id) {
 async function toggleFavorite(id) {
   if (!requireAuth()) return;
   try {
-    const { data: existing } = await supabase.from('favorites').select('product_id').eq('user_id', currentUser.id).eq('product_id', id);
+    const { data: existing } = await sb.from('favorites').select('product_id').eq('user_id', currentUser.id).eq('product_id', id);
     if (existing && existing.length > 0) {
-      await supabase.from('favorites').delete().eq('user_id', currentUser.id).eq('product_id', id);
+      await sb.from('favorites').delete().eq('user_id', currentUser.id).eq('product_id', id);
       favoriteIds.delete(id);
     } else {
-      await supabase.from('favorites').insert({ user_id: currentUser.id, product_id: id });
+      await sb.from('favorites').insert({ user_id: currentUser.id, product_id: id });
       favoriteIds.add(id);
     }
   } catch (e) {
@@ -384,12 +384,12 @@ async function toggleFavorite(id) {
 async function toggleFollow(sellerId) {
   if (!currentUser) { openAuth(); return; }
   try {
-    const { data: existing } = await supabase.from('follows').select('seller_id').eq('user_id', currentUser.id).eq('seller_id', sellerId);
+    const { data: existing } = await sb.from('follows').select('seller_id').eq('user_id', currentUser.id).eq('seller_id', sellerId);
     if (existing && existing.length > 0) {
-      await supabase.from('follows').delete().eq('user_id', currentUser.id).eq('seller_id', sellerId);
+      await sb.from('follows').delete().eq('user_id', currentUser.id).eq('seller_id', sellerId);
       followingIds.delete(sellerId);
     } else {
-      await supabase.from('follows').insert({ user_id: currentUser.id, seller_id: sellerId });
+      await sb.from('follows').insert({ user_id: currentUser.id, seller_id: sellerId });
       followingIds.add(sellerId);
     }
   } catch (e) {
@@ -494,7 +494,7 @@ async function sendMessage() {
   if (!text || !currentChatId || !currentUser) return;
   try {
     const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    await supabase.from('messages').insert({ conv_id: currentChatId, from_user: currentUser.id, text, time });
+    await sb.from('messages').insert({ conv_id: currentChatId, from_user: currentUser.id, text, time });
     if (!messages[currentChatId]) messages[currentChatId] = [];
     messages[currentChatId].push({ from: currentUser.id, text, time });
   } catch (e) {
@@ -546,7 +546,7 @@ async function handleUpload(e) {
   if (!name || !price || !category) return;
   const iconList = { mujer: 'skirt', hombre: 'shirt', accesorios: 'sunglasses' };
   try {
-    const { data: newProduct, error } = await supabase.from('products').insert({
+    const { data: newProduct, error } = await sb.from('products').insert({
       name, category, price: parseInt(price), icon: iconList[category] || 'shirt',
       seller_id: currentUser.id, size, color, brand, condition,
       description: desc, date_posted: new Date().toISOString().split('T')[0]
@@ -582,7 +582,7 @@ async function addToCart(productId) {
   if (!product) return;
   if (cart.some(item => item.id === productId)) return;
   try {
-    const { error } = await supabase.from('carts').insert({
+    const { error } = await sb.from('carts').insert({
       user_id: currentUser.id, product_id: product.id,
       name: product.name, icon: product.icon, effective_price: product.price
     });
@@ -597,7 +597,7 @@ async function addToCart(productId) {
 
 async function removeFromCart(id) {
   try {
-    await supabase.from('carts').delete().eq('user_id', currentUser.id).eq('product_id', id);
+    await sb.from('carts').delete().eq('user_id', currentUser.id).eq('product_id', id);
     cart = cart.filter(item => item.id !== id);
   } catch (e) {
     cart = cart.filter(item => item.id !== id);
@@ -797,7 +797,7 @@ document.addEventListener('click', (e) => {
 document.addEventListener('click', (e) => {
   if (!e.target.closest('#checkoutBtn')) return;
   if (cart.length === 0) return;
-  supabase.from('carts').delete().eq('user_id', currentUser.id).catch(() => {});
+  sb.from('carts').delete().eq('user_id', currentUser.id).catch(() => {});
   cart = [];
   renderCart();
   renderProducts();
@@ -844,9 +844,9 @@ document.addEventListener('click', (e) => {
 
 // ===== INIT =====
 async function initSession() {
-  const { data: { session } } = await supabase.auth.getSession();
+  const { data: { session } } = await sb.auth.getSession();
   if (session) {
-    const { data: user } = await supabase.from('users').select('*').eq('supabase_uid', session.user.id).single();
+    const { data: user } = await sb.from('users').select('*').eq('supabase_uid', session.user.id).single();
     if (user) {
       currentUser = mapUser(user);
       localStorage.setItem('look_user', JSON.stringify(currentUser));

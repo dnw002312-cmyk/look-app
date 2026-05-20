@@ -81,18 +81,19 @@ const contactSuccess = $('#contactSuccess');
 // ===== DATA LOADING =====
 async function loadInitialData() {
   try {
-    const [prods, cartData, favs, follows, msgs] = await Promise.all([
-      api('/products').catch(() => products),
-      api('/cart').catch(() => cart),
-      api('/favorites').catch(() => []),
-      api('/follows').catch(() => []),
-      api('/messages').catch(() => ({})),
-    ]);
-    products = prods;
-    cart = Array.isArray(cartData) ? cartData : [];
-    favoriteIds = new Set(favs);
-    followingIds = new Set(follows);
-    messages = msgs;
+    products = await api('/products').catch(() => products);
+    if (currentUser) {
+      const [cartData, favs, follows, msgs] = await Promise.all([
+        api('/cart').catch(() => []),
+        api('/favorites').catch(() => []),
+        api('/follows').catch(() => []),
+        api('/messages').catch(() => ({})),
+      ]);
+      cart = Array.isArray(cartData) ? cartData : [];
+      favoriteIds = new Set(favs);
+      followingIds = new Set(follows);
+      messages = msgs;
+    }
   } catch (e) {
     console.warn('API unavailable, using seed data');
   }
@@ -521,10 +522,12 @@ function showView(view) {
     catalogSection.style.display = 'none';
     favSection.style.display = '';
     renderFavorites();
+    setTimeout(() => favSection?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
   } else {
     catalogSection.style.display = '';
     favSection.style.display = 'none';
     renderProducts();
+    setTimeout(() => catalogSection?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
   }
   $$('.nav__link').forEach(l => l.classList.toggle('active', l.dataset.view === view));
 }

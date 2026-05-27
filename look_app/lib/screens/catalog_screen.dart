@@ -48,165 +48,239 @@ class _CatalogScreenState extends State<CatalogScreen> {
 
     final cart = context.watch<CartProvider>();
     final filtered = _filteredProducts;
+    final theme = Theme.of(context);
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Hero section
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(28),
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFF667EEA), Color(0xFF764BA2)],
+    return Scaffold(
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            pinned: true,
+            floating: true,
+            backgroundColor: theme.scaffoldBackgroundColor,
+            title: RichText(
+              text: TextSpan(
+                style: theme.textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: -0.5,
+                ),
+                children: [
+                  const TextSpan(text: 'LOOK'),
+                  TextSpan(
+                    text: '.',
+                    style: TextStyle(color: theme.colorScheme.secondary),
+                  ),
+                ],
               ),
-              borderRadius: BorderRadius.circular(20),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'La moda que quieres,\nal alcance de tu mano',
-                  style: Theme.of(context)
-                      .textTheme
-                      .headlineSmall
-                      ?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w800,
-                        height: 1.15,
+          ),
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            sliver: SliverList(
+              delegate: SliverChildListDelegate([
+                // Search
+                Container(
+                  margin: const EdgeInsets.only(bottom: 16),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: TextField(
+                    controller: _searchCtrl,
+                    style: theme.textTheme.bodyMedium,
+                    decoration: InputDecoration(
+                      hintText: 'Buscar marca, talla, estilo...',
+                      hintStyle: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
                       ),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  'Vende y compra ropa. Dale una segunda vida a tu armario.',
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: Colors.white.withValues(alpha: 0.9),
-                      ),
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 20),
-
-          // Search bar
-          TextField(
-            controller: _searchCtrl,
-            decoration: InputDecoration(
-              hintText: 'Buscar prendas...',
-              prefixIcon: const Icon(Icons.search),
-              suffixIcon: _searchQuery.isNotEmpty
-                  ? IconButton(
-                      icon: const Icon(Icons.clear),
-                      onPressed: () {
-                        _searchCtrl.clear();
-                        setState(() => _searchQuery = '');
-                      },
-                    )
-                  : null,
-            ),
-            onChanged: (v) => setState(() => _searchQuery = v),
-          ),
-
-          const SizedBox(height: 20),
-
-          // Categories
-          Text(
-            'Categorías',
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            height: 100,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              itemCount: categories.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 12),
-              itemBuilder: (context, index) {
-                final cat = categories[index];
-                return CategoryCard(
-                  icon: _categoryIcon(cat['icon'] as String),
-                  name: cat['name'] as String,
-                  isActive: _currentFilter == cat['filter'],
-                  onTap: () {
-                    setState(() => _currentFilter = cat['filter'] as String);
-                  },
-                );
-              },
-            ),
-          ),
-
-          const SizedBox(height: 28),
-
-          // Catalog header
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Catálogo',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w700,
+                      prefixIcon: const Icon(Icons.search, size: 20),
+                      suffixIcon: _searchQuery.isNotEmpty
+                          ? IconButton(
+                              icon: const Icon(Icons.clear, size: 20),
+                              onPressed: () {
+                                _searchCtrl.clear();
+                                setState(() => _searchQuery = '');
+                              },
+                            )
+                          : null,
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                     ),
-              ),
-              const SizedBox.shrink(),
-            ],
-          ),
+                    onChanged: (v) => setState(() => _searchQuery = v),
+                  ),
+                ),
 
-          const SizedBox(height: 8),
+                // Categories
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Text(
+                    'Categorías',
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  height: 88,
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: categories.length,
+                    separatorBuilder: (_, __) => const SizedBox(width: 10),
+                    itemBuilder: (context, index) {
+                      final cat = categories[index];
+                      return CategoryCard(
+                        icon: _categoryIcon(cat['icon'] as String),
+                        name: cat['name'] as String,
+                        isActive: _currentFilter == cat['filter'],
+                        onTap: () {
+                          setState(() => _currentFilter = cat['filter'] as String);
+                        },
+                      );
+                    },
+                  ),
+                ),
 
-          // Filter tabs
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                _buildFilterChip('Todas', 'todas'),
-                const SizedBox(width: 8),
-                _buildFilterChip('Mujer', 'mujer'),
-                const SizedBox(width: 8),
-                _buildFilterChip('Hombre', 'hombre'),
-                const SizedBox(width: 8),
-                _buildFilterChip('Accesorios', 'accesorios'),
-              ],
+                const SizedBox(height: 16),
+
+                // IA Stylist card
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        theme.colorScheme.primary,
+                        const Color(0xFF1A3356),
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(24),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.auto_awesome, size: 14, color: Colors.white),
+                            SizedBox(width: 4),
+                            Text('IA Stylist', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: Colors.white)),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        'Tu drop semanal está listo',
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '12 piezas curadas para tu estilo.',
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: Colors.white.withValues(alpha: 0.7),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      ElevatedButton(
+                        onPressed: () {},
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: theme.colorScheme.secondary,
+                          foregroundColor: theme.colorScheme.primary,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                        ),
+                        child: Text(
+                          'Ver selección',
+                          style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 24),
+
+                // Header
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Recomendado para ti',
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: -0.5,
+                      ),
+                    ),
+                    Text(
+                      'Ver todo',
+                      style: theme.textTheme.labelMedium?.copyWith(
+                        color: theme.colorScheme.secondary,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Basado en tu estilo',
+                  style: theme.textTheme.bodySmall,
+                ),
+
+                const SizedBox(height: 16),
+
+                // Filter chips
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: Row(
+                      children: [
+                        _buildFilterChip('Todas', 'todas'),
+                        const SizedBox(width: 8),
+                        _buildFilterChip('Mujer', 'mujer'),
+                        const SizedBox(width: 8),
+                        _buildFilterChip('Hombre', 'hombre'),
+                        const SizedBox(width: 8),
+                        _buildFilterChip('Accesorios', 'accesorios'),
+                      ],
+                    ),
+                  ),
+                ),
+              ]),
             ),
           ),
-
-          const SizedBox(height: 20),
 
           // Products grid
           if (filtered.isEmpty)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 48),
+            SliverFillRemaining(
               child: Center(
                 child: Text(
                   'No hay productos con esos criterios',
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .onSurface
-                            .withValues(alpha: 0.5),
-                      ),
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                  ),
                 ),
               ),
             )
           else
-            LayoutBuilder(
-              builder: (context, constraints) {
-                final crossAxisCount = constraints.maxWidth > 600 ? 3 : 2;
-                return GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: crossAxisCount,
-                    childAspectRatio: 0.62,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
-                  ),
-                  itemCount: filtered.length,
-                  itemBuilder: (context, index) {
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              sliver: SliverGrid(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  childAspectRatio: 0.62,
+                  crossAxisSpacing: 10,
+                  mainAxisSpacing: 10,
+                ),
+                delegate: SliverChildBuilderDelegate(
+                  (context, index) {
                     final product = filtered[index];
                     return GestureDetector(
                       onTap: () => Navigator.pushNamed(
@@ -220,9 +294,12 @@ class _CatalogScreenState extends State<CatalogScreen> {
                       ),
                     );
                   },
-                );
-              },
+                  childCount: filtered.length,
+                ),
+              ),
             ),
+
+          const SliverPadding(padding: EdgeInsets.only(bottom: 24)),
         ],
       ),
     );
@@ -231,9 +308,9 @@ class _CatalogScreenState extends State<CatalogScreen> {
   IconData _categoryIcon(String name) {
     switch (name) {
       case 'woman':
-        return Icons.woman_outlined;
+        return Icons.woman_2_outlined;
       case 'man':
-        return Icons.man_outlined;
+        return Icons.man_2_outlined;
       case 'watch':
         return Icons.watch_outlined;
       case 'apps':
@@ -245,11 +322,22 @@ class _CatalogScreenState extends State<CatalogScreen> {
 
   Widget _buildFilterChip(String label, String value) {
     final isActive = _currentFilter == value;
+    final theme = Theme.of(context);
     return FilterChip(
       label: Text(label),
       selected: isActive,
       onSelected: (_) => setState(() => _currentFilter = value),
       showCheckmark: false,
+      backgroundColor: theme.colorScheme.surfaceContainerHighest,
+      selectedColor: isActive ? const Color(0xFFE8F5EE) : theme.colorScheme.surfaceContainerHighest,
+      labelStyle: theme.textTheme.labelMedium?.copyWith(
+        color: isActive ? theme.colorScheme.primary : theme.colorScheme.onSurface.withValues(alpha: 0.6),
+        fontWeight: isActive ? FontWeight.w700 : FontWeight.w600,
+      ),
+      side: isActive
+          ? BorderSide(color: theme.colorScheme.secondary.withValues(alpha: 0.5))
+          : BorderSide(color: theme.colorScheme.outline.withValues(alpha: 0.3)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
     );
   }
 }

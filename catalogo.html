@@ -2,12 +2,13 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0D2340" />
   <title>Catálogo — LOOK</title>
   <link rel="icon" type="image/jpeg" href="assets/logo.jpeg" />
   <link rel="stylesheet" href="css/style.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 </head>
@@ -17,6 +18,16 @@
   <script>
     renderLayout('Catálogo');
     document.getElementById('mainContent').innerHTML = `
+      <section class="section section--hero" id="hero" style="background:linear-gradient(135deg, var(--ink) 0%, #0a1a2f 100%);padding:60px 0 50px">
+        <div class="container" style="text-align:center">
+          <h1 style="font-family:var(--font-primary);font-size:36px;font-weight:800;color:#fff;letter-spacing:-0.03em;margin-bottom:12px">Descubre tu estilo</h1>
+          <p style="font-family:var(--font-primary);font-size:16px;font-weight:500;color:rgba(255,255,255,0.7);max-width:500px;margin:0 auto 24px">Moda circular con impacto. Compra y vende prendas que merecen una segunda vida.</p>
+          <div class="hero__actions" style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+            <a href="#catalogo" class="btn" style="background:var(--brand);color:var(--ink);font-weight:700;padding:12px 28px;border-radius:12px;text-decoration:none;font-size:15px;font-family:var(--font-primary)">Explorar catálogo</a>
+            <a href="#categorias" class="btn" style="background:rgba(255,255,255,0.1);color:#fff;font-weight:600;padding:12px 28px;border-radius:12px;text-decoration:none;font-size:15px;font-family:var(--font-primary);border:1px solid rgba(255,255,255,0.15)">Ver categorías</a>
+          </div>
+        </div>
+      </section>
       <section class="section" id="categorias">
         <div class="container">
           <h2 class="section__title">Categorías</h2>

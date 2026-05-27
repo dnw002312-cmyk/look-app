@@ -18,19 +18,16 @@ class ProductCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
     final favorites = context.watch<FavoritesProvider>();
     final isFav = favorites.isFavorite(product.id);
 
-    return Card(
-      elevation: 0,
-      color: Colors.transparent,
-      shadowColor: Colors.transparent,
-      surfaceTintColor: Colors.transparent,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.zero,
+    return Container(
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: theme.colorScheme.outlineVariant, width: 0.5),
       ),
-      clipBehavior: Clip.none,
+      clipBehavior: Clip.antiAlias,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -38,52 +35,47 @@ class ProductCard extends StatelessWidget {
             flex: 5,
             child: Container(
               width: double.infinity,
-              color: colorScheme.onSurface.withValues(alpha: 0.04),
+              color: theme.colorScheme.surfaceContainerHighest,
               child: Stack(
+                fit: StackFit.expand,
                 children: [
                   Center(
-                    child: Icon(
-                      productIcon(product.icon),
-                      size: 48,
-                    ),
+                    child: Icon(productIcon(product.icon), size: 44, color: theme.colorScheme.primary.withValues(alpha: 0.3)),
                   ),
                   Positioned(
-                    top: 8,
+                    bottom: 8,
                     left: 8,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 4,
-                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                       decoration: BoxDecoration(
-                        color: colorScheme.primary,
-                        borderRadius: BorderRadius.circular(2),
+                        color: theme.colorScheme.primary.withValues(alpha: 0.9),
+                        borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
-                        product.typeLabel,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 0.5,
-                        ),
+                        'T. ${product.size}',
+                        style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.w700),
                       ),
                     ),
                   ),
                   Positioned(
-                    top: 4,
-                    right: 4,
-                    child: IconButton(
-                      icon: Icon(
-                        isFav ? Icons.favorite : Icons.favorite_outline,
-                        color: isFav ? Colors.red : Colors.white,
-                        size: 22,
+                    top: 6,
+                    right: 6,
+                    child: Container(
+                      width: 32,
+                      height: 32,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.95),
+                        shape: BoxShape.circle,
+                        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 8)],
                       ),
-                      onPressed: () => favorites.toggle(product.id),
-                      style: IconButton.styleFrom(
-                        backgroundColor: Colors.black.withValues(alpha: 0.15),
-                        padding: const EdgeInsets.all(6),
-                        minimumSize: const Size(34, 34),
+                      child: IconButton(
+                        icon: Icon(
+                          isFav ? Icons.favorite : Icons.favorite_outline,
+                          color: isFav ? theme.colorScheme.secondary : theme.colorScheme.primary,
+                          size: 18,
+                        ),
+                        onPressed: () => favorites.toggle(product.id),
+                        padding: EdgeInsets.zero,
                       ),
                     ),
                   ),
@@ -91,119 +83,56 @@ class ProductCard extends StatelessWidget {
               ),
             ),
           ),
-
           Expanded(
             flex: 5,
             child: Padding(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(10),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    product.categoryLabel.toUpperCase(),
+                    product.brand.isNotEmpty ? product.brand : product.categoryLabel,
                     style: theme.textTheme.labelSmall?.copyWith(
-                      color: colorScheme.onSurfaceVariant,
-                      letterSpacing: 1,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    product.name,
-                    style: theme.textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.w600,
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                      letterSpacing: 0.5,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  if (product.size.isNotEmpty || product.color.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 4),
-                      child: Row(
-                        children: [
-                          if (product.size.isNotEmpty)
-                            _Tag(text: product.size),
-                          if (product.size.isNotEmpty && product.color.isNotEmpty)
-                            const SizedBox(width: 4),
-                          if (product.color.isNotEmpty)
-                            _Tag(text: product.color),
-                          if (product.condition.isNotEmpty) ...[
-                            const SizedBox(width: 4),
-                            _Tag(text: product.conditionLabel),
-                          ],
-                        ],
-                      ),
+                  Text(
+                    product.name,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                   const Spacer(),
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text(
                         '\u20A1${product.price.toStringAsFixed(0)}',
                         style: theme.textTheme.titleSmall?.copyWith(
                           fontWeight: FontWeight.w800,
-                          color: colorScheme.primary,
                         ),
+                      ),
+                      Text(
+                        product.sellerName,
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ],
-                  ),
-                  const SizedBox(height: 2),
-                  GestureDetector(
-                    onTap: () =>
-                        Navigator.pushNamed(context, '/seller/${product.sellerId}'),
-                    child: Text(
-                      product.sellerName,
-                      style: theme.textTheme.labelSmall?.copyWith(
-                        color: colorScheme.onSurfaceVariant,
-                        decoration: TextDecoration.underline,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  SizedBox(
-                    width: double.infinity,
-                    child: FilledButton.tonal(
-                      onPressed: onToggleCart,
-                      style: FilledButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(2),
-                        ),
-                        textStyle: const TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      child: Text(inCart ? '✓ En carrito' : 'Agregar'),
-                    ),
                   ),
                 ],
               ),
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _Tag extends StatelessWidget {
-  final String text;
-
-  const _Tag({required this.text});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.onSurface.withValues(alpha: 0.06),
-        borderRadius: BorderRadius.zero,
-      ),
-      child: Text(
-        text,
-        style: theme.textTheme.labelSmall?.copyWith(
-          color: theme.colorScheme.onSurfaceVariant,
-        ),
       ),
     );
   }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/cart_provider.dart';
+import '../providers/favorites_provider.dart';
 import 'auth_screen.dart';
 import 'catalog_screen.dart';
 import 'favorites_screen.dart';
@@ -19,12 +20,12 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
 
-  final List<Widget> _screens = [
-    const CatalogScreen(),
-    const FavoritesScreen(),
-    const UploadScreen(),
-    const CartScreen(),
-    const ContactScreen(),
+  static const _destinations = <({IconData icon, IconData activeIcon, String label})>[
+    (icon: Icons.home_outlined, activeIcon: Icons.home, label: 'Inicio'),
+    (icon: Icons.explore_outlined, activeIcon: Icons.explore, label: 'Explorar'),
+    (icon: Icons.auto_awesome_outlined, activeIcon: Icons.auto_awesome, label: 'IA'),
+    (icon: Icons.favorite_outline, activeIcon: Icons.favorite, label: 'Favoritos'),
+    (icon: Icons.person_outline, activeIcon: Icons.person, label: 'Perfil'),
   ];
 
   @override
@@ -33,60 +34,36 @@ class _HomeScreenState extends State<HomeScreen> {
     if (!auth.isLoggedIn) return const AuthScreen();
 
     final cartProvider = context.watch<CartProvider>();
+    final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('LOOK'),
-        actions: [
-          if (auth.isLoggedIn)
-            IconButton(
-              icon: const Icon(Icons.logout),
-              onPressed: () => auth.logout(),
-              tooltip: 'Cerrar sesión',
-            ),
+      body: IndexedStack(
+        index: _currentIndex,
+        children: [
+          const CatalogScreen(),
+          const CatalogScreen(),
+          const UploadScreen(),
+          const FavoritesScreen(),
+          const ContactScreen(),
         ],
       ),
-      body: _screens[_currentIndex],
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _currentIndex,
-        onDestinationSelected: (index) {
-          setState(() => _currentIndex = index);
-        },
-        destinations: [
-          const NavigationDestination(
-            icon: Icon(Icons.storefront_outlined),
-            selectedIcon: Icon(Icons.storefront),
-            label: 'Catálogo',
-          ),
-          const NavigationDestination(
-            icon: Icon(Icons.favorite_outline),
-            selectedIcon: Icon(Icons.favorite),
-            label: 'Favoritos',
-          ),
-          const NavigationDestination(
-            icon: Icon(Icons.add_circle_outline),
-            selectedIcon: Icon(Icons.add_circle),
-            label: 'Subir',
-          ),
-          NavigationDestination(
-            icon: Badge(
-              isLabelVisible: cartProvider.itemCount > 0,
-              label: Text('${cartProvider.itemCount}'),
-              child: const Icon(Icons.shopping_cart_outlined),
-            ),
-            selectedIcon: Badge(
-              isLabelVisible: cartProvider.itemCount > 0,
-              label: Text('${cartProvider.itemCount}'),
-              child: const Icon(Icons.shopping_cart),
-            ),
-            label: 'Carrito',
-          ),
-          const NavigationDestination(
-            icon: Icon(Icons.mail_outline),
-            selectedIcon: Icon(Icons.mail),
-            label: 'Contacto',
-          ),
-        ],
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          border: Border(top: BorderSide(color: theme.colorScheme.outlineVariant, width: 0.5)),
+        ),
+        child: NavigationBar(
+          selectedIndex: _currentIndex,
+          onDestinationSelected: (index) => setState(() => _currentIndex = index),
+          backgroundColor: theme.scaffoldBackgroundColor,
+          destinations: [
+            for (var i = 0; i < _destinations.length; i++)
+              NavigationDestination(
+                icon: Icon(_destinations[i].icon),
+                selectedIcon: Icon(_destinations[i].activeIcon),
+                label: _destinations[i].label,
+              ),
+          ],
+        ),
       ),
     );
   }

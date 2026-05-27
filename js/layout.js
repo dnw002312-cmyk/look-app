@@ -1,73 +1,68 @@
 function renderLayout(pageTitle) {
   document.title = pageTitle + ' — LOOK';
+  const currentPath = window.location.pathname.split('/').pop() || 'index.html';
+
   const body = document.body;
   body.innerHTML = `
+    <div class="mobile-frame">
     <!-- ===== HEADER ===== -->
     <header class="header">
       <div class="container header__inner">
-        <a href="index.html" class="logo"><img src="assets/logo.jpeg" alt="LOOK" style="height:32px" /></a>
-        <nav class="nav" id="nav">
-          <ul class="nav__list">
-            <li><a href="catalogo.html" class="nav__link">Catálogo</a></li>
-            <li><a href="favoritos.html" class="nav__link">Favoritos</a></li>
-            <li><a href="perfil.html" class="nav__link">Perfil</a></li>
-            <li><a href="contacto.html" class="nav__link">Contacto</a></li>
-          </ul>
-        </nav>
+        <a href="index.html" class="logo" style="display:flex;align-items:center;gap:6px">
+          <svg width="28" height="28" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M22 6 L46 6 C50 6 53 9 53 13 L53 52 C53 56 50 59 46 59 L18 59 C14 59 11 56 11 52 L11 17 C11 14.5 12 12.2 13.7 10.5 L18.5 5.7 C19.5 4.7 21 6 22 6 Z" fill="var(--ink)"/>
+            <circle cx="18" cy="14" r="2.4" fill="var(--background)"/>
+            <path d="M24 26 L28 23 L36 23 L40 26 L43 29 L40 32 L38 31 L38 44 C38 45 37 46 36 46 L28 46 C27 46 26 45 26 44 L26 31 L24 32 L21 29 Z M30 23 C30 25 31 26 32 26 C33 26 34 25 34 23" fill="var(--brand)" stroke="var(--brand)" stroke-width="0.6" stroke-linejoin="round"/>
+          </svg>
+          <span style="font-weight:800;font-size:20px;letter-spacing:-0.04em">LOOK<span style="color:var(--brand)">.</span></span>
+        </a>
         <div class="header__actions">
           <button class="header-icon-btn" id="searchToggle" aria-label="Buscar"><span class="material-icons-outlined">search</span></button>
-          <button class="header-icon-btn" id="favBtn" aria-label="Favoritos" onclick="location.href='favoritos.html'"><span class="material-icons-outlined">favorite</span></button>
           <button class="header-icon-btn" id="authBtn" aria-label="Iniciar sesión"><span class="material-icons-outlined">person</span></button>
-          <button class="header-icon-btn" id="uploadBtn" aria-label="Subir producto"><span class="material-icons-outlined">add_circle</span></button>
+          <button class="header-icon-btn" id="uploadBtn" aria-label="Vender"><span class="material-icons-outlined">add_circle</span></button>
           <button class="cart-btn" id="cartBtn" aria-label="Carrito">
             <span class="material-icons-outlined">shopping_bag</span>
             <span class="cart-badge" id="cartBadge">0</span>
           </button>
-          <button class="hamburger" id="hamburger" aria-label="Menú"><span></span><span></span><span></span></button>
         </div>
       </div>
     </header>
 
     <main id="mainContent"><!-- page content goes here --></main>
 
-    <!-- ===== FOOTER ===== -->
-    <footer class="footer">
-      <div class="container footer__inner">
-        <div class="footer__brand">
-          <a href="index.html" class="logo"><img src="assets/logo.jpeg" alt="LOOK" style="height:32px" /></a>
-          <p>Tu plataforma de moda circular.</p>
-        </div>
-        <div class="footer__links">
-          <h4>Enlaces</h4>
-          <ul>
-            <li><a href="catalogo.html">Catálogo</a></li>
-            <li><a href="favoritos.html">Favoritos</a></li>
-            <li><a href="contacto.html">Contacto</a></li>
-          </ul>
-        </div>
-        <div class="footer__social">
-          <h4>Síguenos</h4>
-          <div class="social-icons">
-            <a href="#" aria-label="Instagram"><span class="material-icons-outlined">camera_alt</span></a>
-            <a href="#" aria-label="Facebook"><span class="material-icons-outlined">thumb_up</span></a>
-            <a href="#" aria-label="Twitter"><span class="material-icons-outlined">chat</span></a>
-          </div>
-        </div>
-      </div>
-      <div class="footer__bottom">
-        <p>&copy; 2026 LOOK. Todos los derechos reservados.</p>
-      </div>
-    </footer>
+    <!-- ===== BOTTOM NAVIGATION ===== -->
+    <nav class="bottom-nav" id="bottomNav">
+      <a href="index.html" class="bottom-nav__item ${currentPath === 'index.html' ? 'active' : ''}">
+        <span class="material-icons-outlined">home</span>
+        <span>Inicio</span>
+      </a>
+      <a href="catalogo.html" class="bottom-nav__item ${currentPath === 'catalogo.html' ? 'active' : ''}">
+        <span class="material-icons-outlined">explore</span>
+        <span>Explorar</span>
+      </a>
+      <a href="catalogo.html" class="bottom-nav__item bottom-nav__item--center">
+        <span class="material-icons-outlined">auto_awesome</span>
+        <span>IA</span>
+      </a>
+      <a href="favoritos.html" class="bottom-nav__item ${currentPath === 'favoritos.html' ? 'active' : ''}">
+        <span class="material-icons-outlined">favorite</span>
+        <span>Favoritos</span>
+      </a>
+      <a href="perfil.html" class="bottom-nav__item ${currentPath === 'perfil.html' ? 'active' : ''}">
+        <span class="material-icons-outlined">person</span>
+        <span>Perfil</span>
+      </a>
+    </nav>
 
     <!-- ===== CART SIDEBAR ===== -->
     <aside class="cart-sidebar" id="cartSidebar">
       <div class="cart-sidebar__header">
-        <h3>Tu carrito</h3>
+        <h3>Carrito</h3>
         <button class="cart-close" id="cartClose">&times;</button>
       </div>
       <div class="cart-sidebar__body" id="cartBody"><div class="cart-empty">Tu carrito está vacío</div></div>
       <div class="cart-sidebar__footer">
-        <div class="cart-total"><span>Total:</span><strong id="cartTotal">$0</strong></div>
+        <div class="cart-total"><span>Total:</span><strong id="cartTotal">₡0</strong></div>
         <button class="btn btn--primary btn--full" id="checkoutBtn">Finalizar compra</button>
       </div>
     </aside>
@@ -78,8 +73,8 @@ function renderLayout(pageTitle) {
       <div class="container">
         <div class="search__inner">
           <div class="search__bar">
-            <input type="text" class="search__input" id="searchInput" placeholder="Buscar prendas, marcas, vendedores..." />
-            <button class="btn btn--primary" id="searchSubmit">Buscar</button>
+            <input type="text" class="search__input" id="searchInput" placeholder="Buscar prendas, marcas..." />
+            <button class="btn btn--primary" id="searchSubmit" style="padding:10px 16px;font-size:13px">Buscar</button>
             <button class="search__close" id="searchClose">&times;</button>
           </div>
           <div class="search__filters" id="searchFilters">
@@ -91,7 +86,6 @@ function renderLayout(pageTitle) {
                 <label><input type="checkbox" value="M" /> M</label>
                 <label><input type="checkbox" value="L" /> L</label>
                 <label><input type="checkbox" value="XL" /> XL</label>
-                <label><input type="checkbox" value="XXL" /> XXL</label>
               </div>
             </div>
             <div class="search__filter-group">
@@ -100,11 +94,9 @@ function renderLayout(pageTitle) {
                 <label><input type="checkbox" value="Negro" /> Negro</label>
                 <label><input type="checkbox" value="Blanco" /> Blanco</label>
                 <label><input type="checkbox" value="Azul" /> Azul</label>
-                <label><input type="checkbox" value="Rojo" /> Rojo</label>
                 <label><input type="checkbox" value="Verde" /> Verde</label>
                 <label><input type="checkbox" value="Rosa" /> Rosa</label>
                 <label><input type="checkbox" value="Gris" /> Gris</label>
-                <label><input type="checkbox" value="Beige" /> Beige</label>
               </div>
             </div>
             <div class="search__filter-group">
@@ -130,14 +122,14 @@ function renderLayout(pageTitle) {
             <div class="search__filter-group">
               <h4 class="search__filter-title">Precio</h4>
               <div class="search__filter-range">
-                <input type="number" id="filterPriceMin" placeholder="Min" min="0" />
+                <input type="number" id="filterPriceMin" placeholder="Min" />
                 <span>—</span>
-                <input type="number" id="filterPriceMax" placeholder="Max" min="0" />
+                <input type="number" id="filterPriceMax" placeholder="Max" />
               </div>
             </div>
             <div class="search__filter-actions">
-              <button class="btn btn--primary" id="filterApply">Aplicar filtros</button>
-              <button class="btn btn--outline" id="filterClear">Limpiar</button>
+              <button class="btn btn--primary" id="filterApply" style="flex:1">Aplicar</button>
+              <button class="btn btn--outline" id="filterClear" style="flex:1">Limpiar</button>
             </div>
           </div>
         </div>
@@ -176,30 +168,30 @@ function renderLayout(pageTitle) {
     <div class="modal-overlay" id="productModal">
       <div class="modal modal--product">
         <div class="modal__header">
-          <h3 class="modal__title">Detalle del producto</h3>
+          <h3 class="modal__title">Detalle</h3>
           <button class="modal__close" data-modal="productModal">&times;</button>
         </div>
         <div class="modal__body">
           <div class="product-detail" id="productDetail">
-            <div class="product-detail__image"><div class="product-detail__img-placeholder" id="productDetailImage"><span class="material-icons-outlined" style="font-size:48px">shirt</span></div></div>
+            <div class="product-detail__image" id="productDetailImage"><span class="material-icons-outlined" style="font-size:48px">checkroom</span></div>
             <div class="product-detail__info">
               <h2 class="product-detail__name" id="productDetailName">Nombre</h2>
-              <p class="product-detail__price" id="productDetailPrice">$0</p>
+              <p class="product-detail__price" id="productDetailPrice">₡0</p>
               <div class="product-detail__meta">
-                <div class="product-detail__field"><span class="product-detail__label">Talla</span><span id="productDetailSize">—</span></div>
-                <div class="product-detail__field"><span class="product-detail__label">Color</span><span id="productDetailColor">—</span></div>
-                <div class="product-detail__field"><span class="product-detail__label">Marca</span><span id="productDetailBrand">—</span></div>
-                <div class="product-detail__field"><span class="product-detail__label">Estado</span><span id="productDetailCondition">—</span></div>
+                <div class="product-detail__field"><span class="product-detail__label">Talla</span><span id="productDetailSize" style="font-weight:700;font-size:14px">—</span></div>
+                <div class="product-detail__field"><span class="product-detail__label">Color</span><span id="productDetailColor" style="font-weight:700;font-size:14px">—</span></div>
+                <div class="product-detail__field"><span class="product-detail__label">Marca</span><span id="productDetailBrand" style="font-weight:700;font-size:14px">—</span></div>
+                <div class="product-detail__field"><span class="product-detail__label">Estado</span><span id="productDetailCondition" style="font-weight:700;font-size:14px">—</span></div>
               </div>
               <p class="product-detail__desc" id="productDetailDesc">Descripción del producto.</p>
               <div class="product-detail__seller" id="productDetailSeller">
-                <span class="product-detail__seller-avatar"><span class="material-icons-outlined">person</span></span>
-                <div><strong id="productDetailSellerName">Vendedor</strong><span class="product-detail__seller-rating" id="productDetailSellerRating">★★★★★</span></div>
+                <span class="product-detail__seller-avatar"><span class="material-icons-outlined" style="font-size:36px">person</span></span>
+                <div><strong id="productDetailSellerName" style="font-size:14px;font-weight:700">Vendedor</strong><br><span class="product-detail__seller-rating" id="productDetailSellerRating">★★★★★</span></div>
               </div>
               <div class="product-detail__actions">
                 <button class="btn btn--primary" id="productDetailAddCart">Añadir al carrito</button>
-                <button class="btn btn--outline" id="productDetailFav"><span class="material-icons-outlined">favorite</span> Favorito</button>
-                <button class="btn btn--outline" id="productDetailChat"><span class="material-icons-outlined">chat</span> Contactar</button>
+                <button class="btn btn--outline" id="productDetailFav"><span class="material-icons-outlined">favorite</span></button>
+                <button class="btn btn--outline" id="productDetailChat"><span class="material-icons-outlined">chat</span></button>
               </div>
             </div>
           </div>
@@ -211,18 +203,18 @@ function renderLayout(pageTitle) {
     <div class="modal-overlay" id="chatModal">
       <div class="modal modal--chat">
         <div class="modal__header"><h3 class="modal__title">Mensajes</h3><button class="modal__close" data-modal="chatModal">&times;</button></div>
-        <div class="modal__body">
+        <div class="modal__body" style="flex:1;overflow:hidden;display:flex;flex-direction:column">
           <div class="chat">
             <div class="chat__list" id="chatList">
               <div class="chat__list-header"><input type="text" class="chat__search" placeholder="Buscar conversación..." /></div>
-              <div class="chat__conversations" id="chatConversations"><!-- JS render --></div>
+              <div class="chat__conversations" id="chatConversations"></div>
             </div>
             <div class="chat__view" id="chatView">
               <div class="chat__view-header" id="chatViewHeader"><span class="chat__view-name">Selecciona una conversación</span></div>
               <div class="chat__messages" id="chatMessages"><div class="chat__empty">Selecciona un chat para ver los mensajes</div></div>
               <div class="chat__input-area">
                 <input type="text" class="chat__input" id="chatInput" placeholder="Escribe un mensaje..." disabled />
-                <button class="btn btn--primary" id="chatSend" disabled>Enviar</button>
+                <button class="btn btn--primary" id="chatSend" disabled style="padding:10px 14px;font-size:13px">Enviar</button>
               </div>
             </div>
           </div>
@@ -233,11 +225,11 @@ function renderLayout(pageTitle) {
     <!-- ===== SELLER PROFILE MODAL ===== -->
     <div class="modal-overlay" id="sellerModal">
       <div class="modal modal--seller">
-        <div class="modal__header"><h3 class="modal__title">Perfil del vendedor</h3><button class="modal__close" data-modal="sellerModal">&times;</button></div>
+        <div class="modal__header"><h3 class="modal__title">Vendedor</h3><button class="modal__close" data-modal="sellerModal">&times;</button></div>
         <div class="modal__body">
           <div class="seller-profile" id="sellerProfile">
             <div class="seller-profile__header">
-              <div class="seller-profile__avatar" id="sellerProfileAvatar"><span class="material-icons-outlined">person</span></div>
+              <div class="seller-profile__avatar" id="sellerProfileAvatar"><span class="material-icons-outlined" style="font-size:32px">person</span></div>
               <div class="seller-profile__info">
                 <h2 id="sellerProfileName">Nombre</h2>
                 <div class="seller-profile__rating" id="sellerProfileRating">★★★★★</div>
@@ -250,8 +242,8 @@ function renderLayout(pageTitle) {
               <div class="seller-profile__stat"><strong id="sellerProfileRatingNum">0.0</strong><span>Valoración</span></div>
             </div>
             <div class="seller-profile__bio" id="sellerProfileBio"><p>Descripción del vendedor.</p></div>
-            <h4>Productos de este vendedor</h4>
-            <div class="products products--small" id="sellerProducts"><!-- JS render --></div>
+            <h4 style="font-size:14px;font-weight:700;margin-bottom:10px">Productos de este vendedor</h4>
+            <div class="products products--small" id="sellerProducts"></div>
           </div>
         </div>
       </div>
@@ -264,76 +256,49 @@ function renderLayout(pageTitle) {
         <div class="modal__body">
           <form class="upload-form" id="uploadForm">
             <div class="form-row">
-              <div class="form-group form-group--half"><label class="form-label">Nombre del producto</label><input type="text" id="uploadName" placeholder="Ej. Vestido floral" required /><span class="form-error"></span></div>
-              <div class="form-group form-group--half"><label class="form-label">Precio ($)</label><input type="number" id="uploadPrice" placeholder="0.00" min="0" step="0.01" required /><span class="form-error"></span></div>
+              <div class="form-group form-group--half"><label class="form-label">Nombre</label><input type="text" id="uploadName" placeholder="Ej. Vestido floral" required /><span class="form-error"></span></div>
+              <div class="form-group form-group--half"><label class="form-label">Precio (₡)</label><input type="number" id="uploadPrice" placeholder="0" min="0" required /><span class="form-error"></span></div>
             </div>
-            <div class="form-group"><label class="form-label">Descripción</label><textarea id="uploadDesc" rows="4" placeholder="Describe la prenda, su estado, materiales..." required></textarea><span class="form-error"></span></div>
+            <div class="form-group"><label class="form-label">Descripción</label><textarea id="uploadDesc" rows="3" placeholder="Describe la prenda, estado, materiales..." required></textarea><span class="form-error"></span></div>
             <div class="form-row">
               <div class="form-group form-group--half">
                 <label class="form-label">Categoría</label>
-                <select id="uploadCategory" required>
-                  <option value="">Selecciona</option>
-                  <option value="mujer">Mujer</option>
-                  <option value="hombre">Hombre</option>
-                  <option value="accesorios">Accesorios</option>
-                </select>
-                <span class="form-error"></span>
+                <select id="uploadCategory" required><option value="">Selecciona</option><option value="mujer">Mujer</option><option value="hombre">Hombre</option><option value="accesorios">Accesorios</option></select>
               </div>
               <div class="form-group form-group--half">
                 <label class="form-label">Talla</label>
-                <select id="uploadSize" required>
-                  <option value="">Selecciona</option>
-                  <option value="XS">XS</option>
-                  <option value="S">S</option>
-                  <option value="M">M</option>
-                  <option value="L">L</option>
-                  <option value="XL">XL</option>
-                  <option value="XXL">XXL</option>
-                </select>
-                <span class="form-error"></span>
+                <select id="uploadSize" required><option value="">Selecciona</option><option value="XS">XS</option><option value="S">S</option><option value="M">M</option><option value="L">L</option><option value="XL">XL</option></select>
               </div>
             </div>
             <div class="form-row">
               <div class="form-group form-group--half">
                 <label class="form-label">Color</label>
-                <select id="uploadColor" required>
-                  <option value="">Selecciona</option>
-                  <option value="Negro">Negro</option>
-                  <option value="Blanco">Blanco</option>
-                  <option value="Azul">Azul</option>
-                  <option value="Rojo">Rojo</option>
-                  <option value="Verde">Verde</option>
-                  <option value="Rosa">Rosa</option>
-                  <option value="Gris">Gris</option>
-                  <option value="Beige">Beige</option>
-                </select>
-                <span class="form-error"></span>
+                <select id="uploadColor" required><option value="">Selecciona</option><option value="Negro">Negro</option><option value="Blanco">Blanco</option><option value="Azul">Azul</option><option value="Rojo">Rojo</option><option value="Verde">Verde</option></select>
               </div>
-              <div class="form-group form-group--half"><label class="form-label">Marca</label><input type="text" id="uploadBrand" placeholder="Ej. Zara, Nike..." /><span class="form-error"></span></div>
+              <div class="form-group form-group--half"><label class="form-label">Marca</label><input type="text" id="uploadBrand" placeholder="Ej. Zara, Nike" /></div>
             </div>
             <div class="form-group">
               <label class="form-label">Estado</label>
               <div class="upload-condition">
-                <label><input type="radio" name="condition" value="Nuevo" required /> Nuevo</label>
+                <label><input type="radio" name="condition" value="Nuevo" checked /> Nuevo</label>
                 <label><input type="radio" name="condition" value="Como nuevo" /> Como nuevo</label>
                 <label><input type="radio" name="condition" value="Buen estado" /> Buen estado</label>
                 <label><input type="radio" name="condition" value="Aceptable" /> Aceptable</label>
               </div>
-              <span class="form-error"></span>
             </div>
             <div class="form-group">
-              <label class="form-label">Imagen del producto</label>
+              <label class="form-label">Imagen</label>
               <div class="upload-image-area" id="uploadImageArea">
                 <span class="material-icons-outlined">add_a_photo</span>
-                <p>Haz clic para subir una imagen</p>
+                <p>Toca para subir una imagen</p>
                 <input type="file" id="uploadImage" accept="image/*" hidden />
               </div>
-              <span class="form-error"></span>
             </div>
             <button type="submit" class="btn btn--primary btn--full">Publicar producto</button>
           </form>
         </div>
       </div>
+    </div>
     </div>
   `;
 }

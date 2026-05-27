@@ -17,32 +17,27 @@ class CategoryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
 
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        width: 90,
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+        width: 72,
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
         decoration: BoxDecoration(
-          color: isActive
-              ? colorScheme.primary.withValues(alpha: 0.08)
-              : Colors.transparent,
-          borderRadius: BorderRadius.zero,
-          border: isActive
-              ? Border.all(color: colorScheme.primary, width: 1)
-              : Border.all(color: Colors.transparent, width: 1),
+          color: isActive ? const Color(0xFFE8F5EE) : theme.colorScheme.surfaceContainerHighest,
+          borderRadius: BorderRadius.circular(16),
         ),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 28),
+            Icon(icon, size: 26, color: theme.colorScheme.primary),
             const SizedBox(height: 6),
             Text(
               name,
-              style: theme.textTheme.bodySmall?.copyWith(
-                fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
-                color: colorScheme.onSurface,
+              style: theme.textTheme.labelSmall?.copyWith(
+                fontWeight: isActive ? FontWeight.w700 : FontWeight.w600,
+                color: theme.colorScheme.primary,
               ),
               textAlign: TextAlign.center,
             ),

@@ -115,7 +115,7 @@ class _AuthScreenState extends State<AuthScreen> {
                 ),
                 obscureText: true,
                 validator: (v) =>
-                    (v == null || v.length < 6) ? 'Mínimo 6 caracteres' : null,
+                    (v == null || v.length < 4) ? 'Mínimo 4 caracteres' : null,
               ),
               if (!_isLogin) ...[
                 const SizedBox(height: 16),

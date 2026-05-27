@@ -4,10 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#0D2340" />
-  <title>Catálogo — LOOK</title>
-  <link rel="icon" type="image/jpeg" href="assets/logo.jpeg" />
+  <title>Marketplace — LOOK</title>
   <link rel="stylesheet" href="css/style.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
@@ -16,29 +16,34 @@
   <script src="js/layout.js"></script>
   <script src="js/script.js"></script>
   <script>
-    renderLayout('Catálogo');
+    renderLayout('Marketplace');
     document.getElementById('mainContent').innerHTML = `
-      <section class="section section--hero" id="hero" style="background:linear-gradient(135deg, var(--ink) 0%, #0a1a2f 100%);padding:60px 0 50px">
-        <div class="container" style="text-align:center">
-          <h1 style="font-family:var(--font-primary);font-size:36px;font-weight:800;color:#fff;letter-spacing:-0.03em;margin-bottom:12px">Descubre tu estilo</h1>
-          <p style="font-family:var(--font-primary);font-size:16px;font-weight:500;color:rgba(255,255,255,0.7);max-width:500px;margin:0 auto 24px">Moda circular con impacto. Compra y vende prendas que merecen una segunda vida.</p>
-          <div class="hero__actions" style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
-            <a href="#catalogo" class="btn" style="background:var(--brand);color:var(--ink);font-weight:700;padding:12px 28px;border-radius:12px;text-decoration:none;font-size:15px;font-family:var(--font-primary)">Explorar catálogo</a>
-            <a href="#categorias" class="btn" style="background:rgba(255,255,255,0.1);color:#fff;font-weight:600;padding:12px 28px;border-radius:12px;text-decoration:none;font-size:15px;font-family:var(--font-primary);border:1px solid rgba(255,255,255,0.15)">Ver categorías</a>
+      <div class="page-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+          <div class="sidebar__section">
+            <div class="sidebar__title">Categorías</div>
+            <a class="sidebar__link active" data-filter="todas" href="#"><span class="material-icons-outlined">apps</span> Todas</a>
+            <a class="sidebar__link" data-filter="mujer" href="#"><span class="material-icons-outlined">woman</span> Mujer</a>
+            <a class="sidebar__link" data-filter="hombre" href="#"><span class="material-icons-outlined">man</span> Hombre</a>
+            <a class="sidebar__link" data-filter="accesorios" href="#"><span class="material-icons-outlined">watch</span> Accesorios</a>
           </div>
-        </div>
-      </section>
-      <section class="section" id="categorias">
-        <div class="container">
-          <h2 class="section__title">Categorías</h2>
-          <p class="section__desc">Encuentra lo que buscas por tipo de prenda</p>
-          <div class="categories" id="categoriesContainer"><!-- JS render --></div>
-        </div>
-      </section>
-      <section class="section" id="catalogo">
-        <div class="container">
-          <h2 class="section__title">Catálogo</h2>
-          <p class="section__desc">Descubre, compra y vende. Tú decides.</p>
+          <div class="sidebar__section">
+            <div class="sidebar__title">Filtros rápidos</div>
+            <a class="sidebar__link" id="sidebarFav" href="favoritos.html"><span class="material-icons-outlined">favorite_border</span> Mis favoritos</a>
+            <a class="sidebar__link" id="sidebarUpload" href="#"><span class="material-icons-outlined">add_circle_outline</span> Publicar producto</a>
+          </div>
+        </aside>
+
+        <!-- Main content -->
+        <div class="content">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+            <div>
+              <h1 class="section-title">Marketplace</h1>
+              <p class="section-subtitle" style="margin-bottom:0">Descubre, compra y vende ropa de segunda mano</p>
+            </div>
+          </div>
+
           <div class="catalog__controls">
             <div class="filter-tabs" id="filterTabs">
               <button class="filter-tab active" data-filter="todas">Todas</button>
@@ -47,12 +52,34 @@
               <button class="filter-tab" data-filter="accesorios">Accesorios</button>
             </div>
           </div>
-          <div class="products" id="productsContainer"><!-- JS render --></div>
+
+          <div class="products" id="productsContainer"></div>
         </div>
-      </section>
+      </div>
     `;
+
+    // Sidebar filter clicks
+    document.querySelectorAll('.sidebar__link[data-filter]').forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        document.querySelectorAll('.sidebar__link').forEach(l => l.classList.remove('active'));
+        link.classList.add('active');
+        const filter = link.dataset.filter;
+        document.querySelectorAll('.filter-tab').forEach(t => {
+          t.classList.toggle('active', t.dataset.filter === filter);
+        });
+        currentFilter = filter;
+        renderProducts();
+      });
+    });
+
+    // Sidebar upload link
+    document.getElementById('sidebarUpload')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      openUpload();
+    });
+
     initPage();
-    renderCategories();
     renderProducts();
   </script>
 </body>

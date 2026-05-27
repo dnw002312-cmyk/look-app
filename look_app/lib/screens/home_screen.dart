@@ -2,13 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/cart_provider.dart';
-import '../providers/favorites_provider.dart';
 import 'auth_screen.dart';
 import 'catalog_screen.dart';
 import 'favorites_screen.dart';
 import 'upload_screen.dart';
-import 'cart_screen.dart';
-import 'contact_screen.dart';
+import 'profile_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -20,49 +18,155 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
 
-  static const _destinations = <({IconData icon, IconData activeIcon, String label})>[
-    (icon: Icons.home_outlined, activeIcon: Icons.home, label: 'Inicio'),
-    (icon: Icons.explore_outlined, activeIcon: Icons.explore, label: 'Explorar'),
-    (icon: Icons.auto_awesome_outlined, activeIcon: Icons.auto_awesome, label: 'IA'),
-    (icon: Icons.favorite_outline, activeIcon: Icons.favorite, label: 'Favoritos'),
-    (icon: Icons.person_outline, activeIcon: Icons.person, label: 'Perfil'),
-  ];
-
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
     if (!auth.isLoggedIn) return const AuthScreen();
 
-    final cartProvider = context.watch<CartProvider>();
     final theme = Theme.of(context);
+    const brand = Color(0xFF6BB58C);
 
     return Scaffold(
       body: IndexedStack(
         index: _currentIndex,
-        children: [
-          const CatalogScreen(),
-          const CatalogScreen(),
-          const UploadScreen(),
-          const FavoritesScreen(),
-          const ContactScreen(),
+        children: const [
+          CatalogScreen(),
+          CatalogScreen(),
+          UploadScreen(),
+          FavoritesScreen(),
+          ProfileScreen(),
         ],
       ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          border: Border(top: BorderSide(color: theme.colorScheme.outlineVariant, width: 0.5)),
+          border: Border(
+            top: BorderSide(color: theme.colorScheme.outlineVariant, width: 0.5),
+          ),
         ),
-        child: NavigationBar(
-          selectedIndex: _currentIndex,
-          onDestinationSelected: (index) => setState(() => _currentIndex = index),
-          backgroundColor: theme.scaffoldBackgroundColor,
-          destinations: [
-            for (var i = 0; i < _destinations.length; i++)
-              NavigationDestination(
-                icon: Icon(_destinations[i].icon),
-                selectedIcon: Icon(_destinations[i].activeIcon),
-                label: _destinations[i].label,
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _NavItem(
+                  icon: Icons.home_outlined,
+                  activeIcon: Icons.home,
+                  label: 'Inicio',
+                  isActive: _currentIndex == 0,
+                  onTap: () => setState(() => _currentIndex = 0),
+                ),
+                _NavItem(
+                  icon: Icons.explore_outlined,
+                  activeIcon: Icons.explore,
+                  label: 'Explorar',
+                  isActive: _currentIndex == 1,
+                  onTap: () => setState(() => _currentIndex = 1),
+                ),
+                _CenterNavItem(
+                  isActive: _currentIndex == 2,
+                  onTap: () => setState(() => _currentIndex = 2),
+                ),
+                _NavItem(
+                  icon: Icons.favorite_outline,
+                  activeIcon: Icons.favorite,
+                  label: 'Favoritos',
+                  isActive: _currentIndex == 3,
+                  onTap: () => setState(() => _currentIndex = 3),
+                ),
+                _NavItem(
+                  icon: Icons.person_outline,
+                  activeIcon: Icons.person,
+                  label: 'Perfil',
+                  isActive: _currentIndex == 4,
+                  onTap: () => setState(() => _currentIndex = 4),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _NavItem extends StatelessWidget {
+  final IconData icon;
+  final IconData activeIcon;
+  final String label;
+  final bool isActive;
+  final VoidCallback onTap;
+
+  const _NavItem({
+    required this.icon,
+    required this.activeIcon,
+    required this.label,
+    required this.isActive,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: SizedBox(
+        width: 56,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              isActive ? activeIcon : icon,
+              size: 24,
+              color: isActive ? theme.colorScheme.primary : theme.colorScheme.onSurface.withValues(alpha: 0.5),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w600,
+                color: isActive ? theme.colorScheme.primary : theme.colorScheme.onSurface.withValues(alpha: 0.5),
               ),
+            ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _CenterNavItem extends StatelessWidget {
+  final bool isActive;
+  final VoidCallback onTap;
+
+  const _CenterNavItem({required this.isActive, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    const brand = Color(0xFF6BB58C);
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 56,
+        height: 56,
+        margin: const EdgeInsets.only(top: -16),
+        decoration: BoxDecoration(
+          color: brand,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: brand.withValues(alpha: 0.4),
+              blurRadius: 16,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: const Icon(
+          Icons.auto_awesome,
+          color: Colors.white,
+          size: 28,
         ),
       ),
     );

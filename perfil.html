@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#0D2340" />
   <title>Mi Perfil — LOOK</title>
-  <link rel="icon" type="image/jpeg" href="assets/logo.jpeg" />
   <link rel="stylesheet" href="css/style.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
@@ -18,17 +18,27 @@
   <script>
     renderLayout('Mi Perfil');
     document.getElementById('mainContent').innerHTML = `
-      <section class="section" style="min-height:80vh">
-        <div class="container" style="max-width:600px">
-          <h2 class="section__title"><span class="material-icons-outlined">person</span> Mi Perfil</h2>
-          <form class="profile-form" id="profileForm" style="display:flex;flex-direction:column;gap:16px">
+      <div class="page-layout">
+        <aside class="sidebar">
+          <div class="sidebar__section">
+            <div class="sidebar__title">Navegación</div>
+            <a class="sidebar__link" href="catalogo.html"><span class="material-icons-outlined">storefront</span> Marketplace</a>
+            <a class="sidebar__link" href="favoritos.html"><span class="material-icons-outlined">favorite_border</span> Favoritos</a>
+            <a class="sidebar__link active" href="perfil.html"><span class="material-icons-outlined">person</span> Mi perfil</a>
+            <a class="sidebar__link" href="contacto.html"><span class="material-icons-outlined">mail_outline</span> Contacto</a>
+          </div>
+        </aside>
+        <div class="content" style="max-width:600px">
+          <h1 class="section-title" style="display:flex;align-items:center;gap:8px"><span class="material-icons-outlined">person</span> Mi Perfil</h1>
+          <p class="section-subtitle">Edita tu información personal</p>
+          <form class="upload-form" id="profileForm">
             <div class="form-group">
               <label class="form-label">Icono</label>
               <div style="display:flex;gap:10px;flex-wrap:wrap" id="photoSelect">
-                <label style="cursor:pointer"><input type="radio" name="photo" value="person" checked /><span class="material-icons-outlined">person</span></label>
-                <label style="cursor:pointer"><input type="radio" name="photo" value="woman" /><span class="material-icons-outlined">woman</span></label>
-                <label style="cursor:pointer"><input type="radio" name="photo" value="man" /><span class="material-icons-outlined">man</span></label>
-                <label style="cursor:pointer"><input type="radio" name="photo" value="face" /><span class="material-icons-outlined">face</span></label>
+                <label style="cursor:pointer;padding:8px;border-radius:8px;border:1.5px solid var(--border)"><input type="radio" name="photo" value="person" checked /><span class="material-icons-outlined">person</span></label>
+                <label style="cursor:pointer;padding:8px;border-radius:8px;border:1.5px solid var(--border)"><input type="radio" name="photo" value="woman" /><span class="material-icons-outlined">woman</span></label>
+                <label style="cursor:pointer;padding:8px;border-radius:8px;border:1.5px solid var(--border)"><input type="radio" name="photo" value="man" /><span class="material-icons-outlined">man</span></label>
+                <label style="cursor:pointer;padding:8px;border-radius:8px;border:1.5px solid var(--border)"><input type="radio" name="photo" value="face" /><span class="material-icons-outlined">face</span></label>
               </div>
             </div>
             <div class="form-group">
@@ -46,29 +56,29 @@
               <textarea id="profileDesc" rows="3" placeholder="Cuéntanos sobre ti..."></textarea>
               <span class="form-error"></span>
             </div>
-            <fieldset style="border:1px solid var(--color-hint);padding:16px;display:flex;flex-direction:column;gap:12px">
-              <legend style="font-family:var(--font-primary);font-size:14px">Cambiar contraseña</legend>
+            <fieldset style="border:1.5px solid var(--border);padding:20px;border-radius:var(--radius-md);display:flex;flex-direction:column;gap:14px">
+              <legend style="font-family:var(--font-primary);font-size:14px;font-weight:700">Cambiar contraseña</legend>
               <div class="form-group">
                 <label class="form-label">Contraseña actual</label>
-                <input type="password" id="profileCurrentPass" placeholder="Dejar vacío si no querés cambiarla" />
+                <input type="password" id="profileCurrentPass" placeholder="Dejar vacío si no quieres cambiarla" />
                 <span class="form-error"></span>
               </div>
               <div class="form-group">
                 <label class="form-label">Nueva contraseña</label>
-                <input type="password" id="profileNewPass" placeholder="Mínimo 6 caracteres" minlength="6" />
+                <input type="password" id="profileNewPass" placeholder="Mínimo 4 caracteres" minlength="4" />
                 <span class="form-error"></span>
               </div>
               <div class="form-group">
                 <label class="form-label">Confirmar nueva contraseña</label>
-                <input type="password" id="profileConfirmPass" placeholder="Repetí la nueva contraseña" />
+                <input type="password" id="profileConfirmPass" placeholder="Repite la nueva contraseña" />
                 <span class="form-error"></span>
               </div>
             </fieldset>
-            <button type="submit" class="btn btn--primary btn--full">Guardar cambios</button>
+            <button type="submit" class="btn btn--primary btn--full btn--lg">Guardar cambios</button>
           </form>
-          <div id="profileSuccess" style="display:none;text-align:center;padding:20px;border:1px solid var(--color-success);color:var(--color-success);margin-top:16px"></div>
+          <div id="profileSuccess" style="display:none;text-align:center;padding:16px;border-radius:var(--radius-md);background:var(--brand-soft);color:var(--brand-foreground);font-weight:600;margin-top:16px"></div>
         </div>
-      </section>
+      </div>
     `;
 
     initPage();

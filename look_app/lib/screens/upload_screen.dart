@@ -30,16 +30,8 @@ class _UploadScreenState extends State<UploadScreen> {
 
   final _sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'Único'];
   final _colors = [
-    'Negro',
-    'Blanco',
-    'Gris',
-    'Rojo',
-    'Azul',
-    'Verde',
-    'Rosa',
-    'Amarillo',
-    'Beige',
-    'Marrón',
+    'Negro', 'Blanco', 'Gris', 'Rojo', 'Azul',
+    'Verde', 'Rosa', 'Amarillo', 'Beige', 'Marrón',
   ];
   final _conditions = [
     {'value': 'nuevo', 'label': 'Nuevo con etiqueta'},
@@ -47,11 +39,7 @@ class _UploadScreenState extends State<UploadScreen> {
     {'value': 'poco uso', 'label': 'Buen estado'},
     {'value': 'usado', 'label': 'Estado regular'},
   ];
-
-  final _icons = [
-    'skirt', 'shirt', 'checkroom', 'handbag',
-    'sunglasses', 'footsteps', 'hiking',
-  ];
+  final _icons = ['skirt', 'shirt', 'checkroom', 'handbag', 'sunglasses', 'footsteps', 'hiking'];
 
   @override
   void dispose() {
@@ -64,7 +52,6 @@ class _UploadScreenState extends State<UploadScreen> {
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
-
     setState(() => _saving = true);
 
     final price = double.tryParse(_priceController.text) ?? 0;
@@ -89,8 +76,7 @@ class _UploadScreenState extends State<UploadScreen> {
       style: '',
       location: '',
       description: _descriptionController.text.trim(),
-      datePosted:
-          '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}',
+      datePosted: '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}',
       likes: 0,
     );
 
@@ -98,8 +84,8 @@ class _UploadScreenState extends State<UploadScreen> {
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Row(
+        SnackBar(
+          content: const Row(
             children: [
               Icon(Icons.check_circle, color: Colors.white),
               SizedBox(width: 12),
@@ -107,6 +93,8 @@ class _UploadScreenState extends State<UploadScreen> {
             ],
           ),
           behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          backgroundColor: const Color(0xFF6BB58C),
         ),
       );
       Navigator.of(context).pop();
@@ -118,63 +106,61 @@ class _UploadScreenState extends State<UploadScreen> {
     final auth = context.watch<AuthProvider>();
     if (!auth.isLoggedIn) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Publicar producto')),
+        appBar: AppBar(
+          title: Text('Publicar', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
+        ),
         body: const AuthGate(
           title: 'Inicia sesión para publicar',
-          subtitle: 'Crea una cuenta o inicia sesión para subir tus productos y empezar a vender.',
+          subtitle: 'Crea una cuenta o inicia sesión para subir tus productos.',
         ),
       );
     }
 
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+    final cs = theme.colorScheme;
+    const brand = Color(0xFF6BB58C);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Publicar producto'),
+        title: Text(
+          'Publicar producto',
+          style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+        ),
       ),
       body: Form(
         key: _formKey,
         child: ListView(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(20),
           children: [
             Text(
-              'Selecciona un icono para tu producto',
-              style: theme.textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+              'Icono del producto',
+              style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 10),
             SizedBox(
-              height: 56,
+              height: 60,
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
                 itemCount: _icons.length,
-                separatorBuilder: (_, __) => const SizedBox(width: 8),
+                separatorBuilder: (_, __) => const SizedBox(width: 10),
                 itemBuilder: (context, index) {
                   final iconName = _icons[index];
                   final isSelected = _icon == iconName;
                   return GestureDetector(
                     onTap: () => setState(() => _icon = iconName),
                     child: Container(
-                      width: 52,
-                      height: 52,
+                      width: 56,
+                      height: 56,
                       decoration: BoxDecoration(
-                        color: isSelected
-                            ? colorScheme.primaryContainer
-                            : colorScheme.surfaceContainerHighest,
-                        borderRadius: BorderRadius.circular(12),
-                        border: isSelected
-                            ? Border.all(color: colorScheme.primary, width: 2)
-                            : null,
+                        color: isSelected ? brand.withValues(alpha: 0.15) : cs.surfaceContainerHighest,
+                        borderRadius: BorderRadius.circular(16),
+                        border: isSelected ? Border.all(color: brand, width: 2) : null,
                       ),
                       child: Center(
                         child: Icon(
                           productIcon(iconName),
                           size: 24,
-                          color: isSelected
-                              ? colorScheme.primary
-                              : colorScheme.onSurface,
+                          color: isSelected ? brand : cs.onSurface,
                         ),
                       ),
                     ),
@@ -182,78 +168,96 @@ class _UploadScreenState extends State<UploadScreen> {
                 },
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 24),
             TextFormField(
               controller: _nameController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Nombre del producto',
-                prefixIcon: Icon(Icons.label_outline),
+                prefixIcon: const Icon(Icons.label_outline),
+                filled: true,
+                fillColor: cs.surfaceContainerHighest,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
+                  borderSide: BorderSide.none,
+                ),
               ),
-              validator: (v) =>
-                  (v == null || v.trim().isEmpty) ? 'El nombre es obligatorio' : null,
+              validator: (v) => (v == null || v.trim().isEmpty) ? 'Obligatorio' : null,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 14),
             TextFormField(
               controller: _priceController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Precio (\u20A1)',
-                prefixIcon: Icon(Icons.attach_money),
+                prefixIcon: const Icon(Icons.attach_money),
+                filled: true,
+                fillColor: cs.surfaceContainerHighest,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
+                  borderSide: BorderSide.none,
+                ),
               ),
               keyboardType: TextInputType.number,
               validator: (v) {
-                if (v == null || v.trim().isEmpty) return 'El precio es obligatorio';
+                if (v == null || v.trim().isEmpty) return 'Obligatorio';
                 final price = double.tryParse(v);
                 if (price == null || price <= 0) return 'Precio no válido';
                 return null;
               },
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 14),
             TextFormField(
               controller: _descriptionController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Descripción',
-                prefixIcon: Icon(Icons.description_outlined),
+                prefixIcon: const Icon(Icons.description_outlined),
+                filled: true,
+                fillColor: cs.surfaceContainerHighest,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
+                  borderSide: BorderSide.none,
+                ),
                 alignLabelWithHint: true,
               ),
               maxLines: 4,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 14),
             DropdownButtonFormField<ProductCategory>(
               value: _category,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Categoría',
-                prefixIcon: Icon(Icons.category_outlined),
+                prefixIcon: const Icon(Icons.category_outlined),
+                filled: true,
+                fillColor: cs.surfaceContainerHighest,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
+                  borderSide: BorderSide.none,
+                ),
               ),
               items: const [
-                DropdownMenuItem(
-                  value: ProductCategory.mujer,
-                  child: Text('Mujer'),
-                ),
-                DropdownMenuItem(
-                  value: ProductCategory.hombre,
-                  child: Text('Hombre'),
-                ),
-                DropdownMenuItem(
-                  value: ProductCategory.accesorios,
-                  child: Text('Accesorios'),
-                ),
+                DropdownMenuItem(value: ProductCategory.mujer, child: Text('Mujer')),
+                DropdownMenuItem(value: ProductCategory.hombre, child: Text('Hombre')),
+                DropdownMenuItem(value: ProductCategory.accesorios, child: Text('Accesorios')),
               ],
               onChanged: (v) {
                 if (v != null) setState(() => _category = v);
               },
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 14),
             Row(
               children: [
                 Expanded(
                   child: DropdownButtonFormField<String>(
                     value: _size,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Talla',
+                      filled: true,
+                      fillColor: cs.surfaceContainerHighest,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        borderSide: BorderSide.none,
+                      ),
                     ),
-                    items: _sizes.map((s) {
-                      return DropdownMenuItem(value: s, child: Text(s));
-                    }).toList(),
+                    items: _sizes.map((s) => DropdownMenuItem(value: s, child: Text(s))).toList(),
                     onChanged: (v) {
                       if (v != null) setState(() => _size = v);
                     },
@@ -263,12 +267,16 @@ class _UploadScreenState extends State<UploadScreen> {
                 Expanded(
                   child: DropdownButtonFormField<String>(
                     value: _color,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Color',
+                      filled: true,
+                      fillColor: cs.surfaceContainerHighest,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        borderSide: BorderSide.none,
+                      ),
                     ),
-                    items: _colors.map((c) {
-                      return DropdownMenuItem(value: c, child: Text(c));
-                    }).toList(),
+                    items: _colors.map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
                     onChanged: (v) {
                       if (v != null) setState(() => _color = v);
                     },
@@ -276,56 +284,76 @@ class _UploadScreenState extends State<UploadScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 14),
             TextFormField(
               controller: _brandController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Marca',
-                prefixIcon: Icon(Icons.business_outlined),
+                prefixIcon: const Icon(Icons.business_outlined),
+                filled: true,
+                fillColor: cs.surfaceContainerHighest,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
+                  borderSide: BorderSide.none,
+                ),
               ),
             ),
             const SizedBox(height: 20),
             Text(
               'Estado del producto',
-              style: theme.textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+              style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
             ),
-            const SizedBox(height: 8),
-            ..._conditions.map((c) {
-              return RadioListTile<String>(
-                value: c['value'] as String,
-                groupValue: _condition,
-                title: Text(c['label'] as String),
-                contentPadding: EdgeInsets.zero,
-                dense: true,
-                onChanged: (v) {
-                  if (v != null) setState(() => _condition = v);
-                },
-              );
-            }),
-            const SizedBox(height: 24),
-            FilledButton.icon(
-              onPressed: _saving ? null : _submit,
-              icon: _saving
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Colors.white,
+            const SizedBox(height: 10),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: _conditions.map((c) {
+                final isSelected = _condition == c['value'];
+                return GestureDetector(
+                  onTap: () => setState(() => _condition = c['value'] as String),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: isSelected ? brand.withValues(alpha: 0.15) : cs.surfaceContainerHighest,
+                      borderRadius: BorderRadius.circular(20),
+                      border: isSelected ? Border.all(color: brand, width: 1.5) : null,
+                    ),
+                    child: Text(
+                      c['label'] as String,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        color: isSelected ? brand : cs.onSurface,
                       ),
-                    )
-                  : const Icon(Icons.cloud_upload_outlined),
-              label: Text(_saving ? 'Publicando...' : 'Publicar producto'),
-              style: FilledButton.styleFrom(
-                minimumSize: const Size(double.infinity, 52),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+            const SizedBox(height: 28),
+            SizedBox(
+              width: double.infinity,
+              height: 52,
+              child: FilledButton.icon(
+                onPressed: _saving ? null : _submit,
+                icon: _saving
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                      )
+                    : const Icon(Icons.cloud_upload_outlined),
+                label: Text(
+                  _saving ? 'Publicando...' : 'Publicar producto',
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                ),
+                style: FilledButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                 ),
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
           ],
         ),
       ),

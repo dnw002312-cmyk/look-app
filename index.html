@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#0D2340" />
-  <title>LOOK — Compra y vende ropa</title>
+  <title>LOOK — Compra, vende y reutiliza ropa</title>
   <link rel="stylesheet" href="css/style.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -18,25 +18,35 @@
   <script>
     renderLayout('Inicio');
     document.getElementById('mainContent').innerHTML = `
-      <div class="hero" style="background:linear-gradient(160deg, var(--ink) 0%, oklch(0.28 0.06 255) 100%);min-height:100dvh;display:flex;align-items:center;justify-content:center;padding-top:0;margin-top:-56px">
-        <div class="container hero__inner" style="color:white">
-          <div class="hero__image" style="margin-bottom:8px">
-            <div style="width:100px;height:100px;border-radius:24px;background:white;display:flex;align-items:center;justify-content:center;box-shadow:0 20px 60px oklch(0.74 0.09 153 / 0.3)">
-              <svg width="56" height="56" viewBox="0 0 64 64" fill="none"><path d="M22 6 L46 6 C50 6 53 9 53 13 L53 52 C53 56 50 59 46 59 L18 59 C14 59 11 56 11 52 L11 17 C11 14.5 12 12.2 13.7 10.5 L18.5 5.7 C19.5 4.7 21 6 22 6 Z" fill="var(--ink)"/><circle cx="18" cy="14" r="2.4" fill="white"/><path d="M24 26 L28 23 L36 23 L40 26 L43 29 L40 32 L38 31 L38 44 C38 45 37 46 36 46 L28 46 C27 46 26 45 26 44 L26 31 L24 32 L21 29 Z M30 23 C30 25 31 26 32 26 C33 26 34 25 34 23" fill="var(--brand)" stroke="var(--brand)" stroke-width="0.6" stroke-linejoin="round"/></svg>
-            </div>
+      <div class="hero">
+        <div class="hero__content">
+          <h1>La moda que quieres,<br/>al alcance de tu mano</h1>
+          <p>Compra y vende ropa de segunda mano. Dale una nueva vida a tu armario con LOOK, el marketplace de moda circular.</p>
+          <div class="hero__actions">
+            <a href="catalogo.html" class="btn btn--brand btn--lg">Explorar marketplace</a>
+            <a href="catalogo.html" class="btn btn--outline btn--lg" style="border-color:oklch(1 0 0 / 0.3);color:white">Quiero vender</a>
           </div>
-          <div class="hero__content">
-            <h1 style="color:white;font-size:38px;letter-spacing:-0.04em">LOOK<span style="color:var(--brand)">.</span></h1>
-            <p style="color:oklch(1 0 0 / 0.7);font-size:15px">Compra. Vende. Reutiliza.<br/>El marketplace de moda circular.</p>
-            <div class="hero__actions">
-              <a href="catalogo.html" class="btn btn--primary" style="background:var(--brand);color:var(--brand-foreground);box-shadow:0 8px 24px oklch(0.74 0.09 153 / 0.4)">Iniciar sesión</a>
-              <a href="catalogo.html" class="btn btn--outline" style="border-color:oklch(1 0 0 / 0.2);color:white;background:oklch(1 0 0 / 0.05)">Crear cuenta</a>
-            </div>
-            <p style="color:oklch(1 0 0 / 0.4);font-size:11px;margin-top:12px">Al continuar aceptas los términos de uso</p>
+        </div>
+        <div class="hero__visual">
+          <div class="hero__img-placeholder">
+            <span class="material-icons-outlined" style="font-size:80px;color:white">checkroom</span>
           </div>
         </div>
       </div>
+
+      <div style="padding:40px 0">
+        <h2 class="section-title">Categorías populares</h2>
+        <p class="section-subtitle">Encuentra lo que buscas</p>
+        <div class="categories" id="categoriesContainer"></div>
+      </div>
+
+      <div style="padding:20px 0 40px">
+        <h2 class="section-title">Recién publicados</h2>
+        <p class="section-subtitle">Las últimas prendas añadidas al marketplace</p>
+        <div class="products" id="productsContainer"></div>
+      </div>
     `;
+    renderCategories();
     initPage();
   </script>
 </body>

@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#0D2340" />
   <title>Favoritos — LOOK</title>
-  <link rel="icon" type="image/jpeg" href="assets/logo.jpeg" />
   <link rel="stylesheet" href="css/style.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
@@ -18,17 +18,25 @@
   <script>
     renderLayout('Favoritos');
     document.getElementById('mainContent').innerHTML = `
-      <section class="section" id="favoritos">
-        <div class="container">
-          <h2 class="section__title"><span class="material-icons-outlined">favorite</span> Tus favoritos</h2>
-          <p class="section__desc">Prendas que te han gustado</p>
-          <div class="products" id="favoritesContainer"><!-- JS render --></div>
+      <div class="page-layout">
+        <aside class="sidebar">
+          <div class="sidebar__section">
+            <div class="sidebar__title">Navegación</div>
+            <a class="sidebar__link" href="catalogo.html"><span class="material-icons-outlined">storefront</span> Marketplace</a>
+            <a class="sidebar__link active" href="favoritos.html"><span class="material-icons-outlined">favorite</span> Favoritos</a>
+            <a class="sidebar__link" href="perfil.html"><span class="material-icons-outlined">person</span> Mi perfil</a>
+          </div>
+        </aside>
+        <div class="content">
+          <h1 class="section-title" style="display:flex;align-items:center;gap:8px"><span class="material-icons-outlined" style="color:var(--brand)">favorite</span> Tus favoritos</h1>
+          <p class="section-subtitle">Prendas que has guardado para después</p>
+          <div class="products" id="favoritesContainer"></div>
         </div>
-      </section>
+      </div>
     `;
     initPage();
     if (!currentUser) {
-      document.getElementById('favoritos').innerHTML = '<div class="auth-gate" style="min-height:50vh"><div class="auth-gate__content"><span class="material-icons-outlined auth-gate__icon">lock</span><h3 class="auth-gate__title">Inicia sesión para ver favoritos</h3><p class="auth-gate__text">Guarda tus prendas favoritas mientras exploras el catálogo.</p><div class="auth-gate__actions"><button class="btn btn--primary" onclick="openAuth()">Iniciar sesión</button></div></div></div>';
+      document.getElementById('favoritesContainer').innerHTML = '<div class="auth-gate" style="grid-column:1/-1"><div class="auth-gate__content"><span class="material-icons-outlined auth-gate__icon">lock</span><h3 class="auth-gate__title">Inicia sesión para ver favoritos</h3><p class="auth-gate__text">Guarda tus prendas favoritas mientras exploras el marketplace.</p><div class="auth-gate__actions"><button class="btn btn--primary" onclick="openAuth()">Iniciar sesión</button></div></div></div>';
     } else {
       renderFavorites();
     }

@@ -50,116 +50,239 @@ class _AuthScreenState extends State<AuthScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final auth = context.watch<AuthProvider>();
+    const brand = Color(0xFF6BB58C);
+    const ink = Color(0xFF0D2340);
 
     return Scaffold(
-      appBar: AppBar(),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              const Icon(Icons.waving_hand, size: 48),
-              const SizedBox(height: 8),
-              Text(
-                _isLogin ? 'Bienvenido de vuelta' : 'Crear cuenta',
-                style: theme.textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                _isLogin
-                    ? 'Inicia sesión para continuar'
-                    : 'Regístrate para empezar a vender y comprar',
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-                ),
-              ),
-              const SizedBox(height: 32),
-              if (!_isLogin) ...[
-                TextFormField(
-                  controller: _nameCtrl,
-                  decoration: const InputDecoration(
-                    labelText: 'Nombre',
-                    prefixIcon: Icon(Icons.person_outline),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [ink, Color(0xFF1A3356)],
+          ),
+        ),
+        child: SafeArea(
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(32),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 80,
+                    height: 80,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: brand.withValues(alpha: 0.3),
+                          blurRadius: 30,
+                          offset: const Offset(0, 10),
+                        ),
+                      ],
+                    ),
+                    child: const Center(
+                      child: Icon(Icons.checkroom, size: 40, color: ink),
+                    ),
                   ),
-                  validator: (v) =>
-                      (v == null || v.trim().isEmpty) ? 'El nombre es obligatorio' : null,
-                ),
-                const SizedBox(height: 16),
-              ],
-              TextFormField(
-                controller: _emailCtrl,
-                decoration: const InputDecoration(
-                  labelText: 'Correo electrónico',
-                  prefixIcon: Icon(Icons.email_outlined),
-                ),
-                keyboardType: TextInputType.emailAddress,
-                validator: (v) {
-                  if (v == null || v.trim().isEmpty) return 'El correo es obligatorio';
-                  if (!RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$').hasMatch(v.trim())) {
-                    return 'Correo no válido';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _passwordCtrl,
-                decoration: const InputDecoration(
-                  labelText: 'Contraseña',
-                  prefixIcon: Icon(Icons.lock_outline),
-                ),
-                obscureText: true,
-                validator: (v) =>
-                    (v == null || v.length < 4) ? 'Mínimo 4 caracteres' : null,
-              ),
-              if (!_isLogin) ...[
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _confirmCtrl,
-                  decoration: const InputDecoration(
-                    labelText: 'Confirmar contraseña',
-                    prefixIcon: Icon(Icons.lock_outline),
+                  const SizedBox(height: 24),
+                  RichText(
+                    text: const TextSpan(
+                      style: TextStyle(
+                        fontSize: 42,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.white,
+                        letterSpacing: -1.5,
+                      ),
+                      children: [
+                        TextSpan(text: 'LOOK'),
+                        TextSpan(text: '.', style: TextStyle(color: brand)),
+                      ],
+                    ),
                   ),
-                  obscureText: true,
-                  validator: (v) =>
-                      v != _passwordCtrl.text ? 'Las contraseñas no coinciden' : null,
-                ),
-              ],
-              const SizedBox(height: 24),
-              FilledButton(
-                onPressed: auth.isLoading ? null : _submit,
-                style: FilledButton.styleFrom(
-                  minimumSize: const Size(double.infinity, 52),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Compra. Vende. Reutiliza.',
+                    style: TextStyle(
+                      fontSize: 15,
+                      color: Colors.white.withValues(alpha: 0.7),
+                    ),
                   ),
-                ),
-                child: auth.isLoading
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : Text(_isLogin ? 'Iniciar sesión' : 'Crear cuenta'),
+                  const SizedBox(height: 4),
+                  Text(
+                    'El marketplace de moda circular',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Colors.white.withValues(alpha: 0.5),
+                    ),
+                  ),
+                  const SizedBox(height: 48),
+                  Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Text(
+                            _isLogin ? 'Iniciar sesión' : 'Crear cuenta',
+                            style: const TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w800,
+                              color: ink,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            _isLogin
+                                ? 'Bienvenido de vuelta'
+                                : 'Regístrate para empezar',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: ink.withValues(alpha: 0.5),
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          if (!_isLogin) ...[
+                            TextFormField(
+                              controller: _nameCtrl,
+                              decoration: InputDecoration(
+                                labelText: 'Nombre',
+                                prefixIcon: const Icon(Icons.person_outline),
+                                filled: true,
+                                fillColor: Colors.grey.shade50,
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                  borderSide: BorderSide.none,
+                                ),
+                              ),
+                              validator: (v) =>
+                                  (v == null || v.trim().isEmpty) ? 'Obligatorio' : null,
+                            ),
+                            const SizedBox(height: 12),
+                          ],
+                          TextFormField(
+                            controller: _emailCtrl,
+                            decoration: InputDecoration(
+                              labelText: 'Correo electrónico',
+                              prefixIcon: const Icon(Icons.email_outlined),
+                              filled: true,
+                              fillColor: Colors.grey.shade50,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(14),
+                                borderSide: BorderSide.none,
+                              ),
+                            ),
+                            keyboardType: TextInputType.emailAddress,
+                            validator: (v) {
+                              if (v == null || v.trim().isEmpty) return 'Obligatorio';
+                              if (!RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$').hasMatch(v.trim())) {
+                                return 'Correo no válido';
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 12),
+                          TextFormField(
+                            controller: _passwordCtrl,
+                            decoration: InputDecoration(
+                              labelText: 'Contraseña',
+                              prefixIcon: const Icon(Icons.lock_outline),
+                              filled: true,
+                              fillColor: Colors.grey.shade50,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(14),
+                                borderSide: BorderSide.none,
+                              ),
+                            ),
+                            obscureText: true,
+                            validator: (v) =>
+                                (v == null || v.length < 4) ? 'Mínimo 4 caracteres' : null,
+                          ),
+                          if (!_isLogin) ...[
+                            const SizedBox(height: 12),
+                            TextFormField(
+                              controller: _confirmCtrl,
+                              decoration: InputDecoration(
+                                labelText: 'Confirmar contraseña',
+                                prefixIcon: const Icon(Icons.lock_outline),
+                                filled: true,
+                                fillColor: Colors.grey.shade50,
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                  borderSide: BorderSide.none,
+                                ),
+                              ),
+                              obscureText: true,
+                              validator: (v) =>
+                                  v != _passwordCtrl.text ? 'No coinciden' : null,
+                            ),
+                          ],
+                          const SizedBox(height: 20),
+                          SizedBox(
+                            height: 52,
+                            child: FilledButton(
+                              onPressed: auth.isLoading ? null : _submit,
+                              style: FilledButton.styleFrom(
+                                backgroundColor: ink,
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                              ),
+                              child: auth.isLoading
+                                  ? const SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: Colors.white,
+                                      ),
+                                    )
+                                  : Text(
+                                      _isLogin ? 'Iniciar sesión' : 'Crear cuenta',
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          TextButton(
+                            onPressed: () => setState(() {
+                              _isLogin = !_isLogin;
+                              _formKey.currentState?.reset();
+                            }),
+                            child: Text(
+                              _isLogin
+                                  ? '¿No tienes cuenta? Regístrate'
+                                  : '¿Ya tienes cuenta? Inicia sesión',
+                              style: const TextStyle(color: ink),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Al continuar aceptas los términos de uso',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: Colors.white.withValues(alpha: 0.4),
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 16),
-              TextButton(
-                onPressed: () => setState(() {
-                  _isLogin = !_isLogin;
-                  _formKey.currentState?.reset();
-                }),
-                child: Text(
-                  _isLogin
-                      ? '¿No tienes cuenta? Regístrate'
-                      : '¿Ya tienes cuenta? Inicia sesión',
-                ),
-              ),
-            ],
+            ),
           ),
         ),
       ),

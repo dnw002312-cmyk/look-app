@@ -22,56 +22,87 @@ class FavoritesScreen extends StatelessWidget {
 
     final favorites = context.watch<FavoritesProvider>();
     final cart = context.watch<CartProvider>();
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
     final favProducts =
         allProducts.where((p) => favorites.isFavorite(p.id)).toList();
 
-    if (favProducts.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.favorite_outlined,
-                size: 48,
-                color: Theme.of(context)
-                    .colorScheme
-                    .onSurface
-                    .withValues(alpha: 0.3)),
-            const SizedBox(height: 16),
-            Text(
-              'No tienes favoritos aún',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .onSurface
-                        .withValues(alpha: 0.5),
-                  ),
-            ),
-          ],
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          'Favoritos',
+          style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
         ),
-      );
-    }
-
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: GridView.builder(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          childAspectRatio: 0.62,
-          crossAxisSpacing: 12,
-          mainAxisSpacing: 12,
-        ),
-        itemCount: favProducts.length,
-        itemBuilder: (context, index) {
-          final product = favProducts[index];
-          return ProductCard(
-            product: product,
-            inCart: cart.isInCart(product.id),
-            onToggleCart: () => cart.toggleItem(product),
-          );
-        },
       ),
+      body: favProducts.isEmpty
+          ? Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 80,
+                    height: 80,
+                    decoration: BoxDecoration(
+                      color: cs.secondary.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Icon(
+                      Icons.favorite_outline,
+                      size: 36,
+                      color: cs.secondary,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'No tienes favoritos aún',
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Toca el corazón en los productos que te gusten',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: cs.onSurface.withValues(alpha: 0.5),
+                    ),
+                  ),
+                ],
+              ),
+            )
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '${favProducts.length} ${favProducts.length == 1 ? 'prenda guardada' : 'prendas guardadas'}',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: cs.onSurface.withValues(alpha: 0.6),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      childAspectRatio: 0.62,
+                      crossAxisSpacing: 12,
+                      mainAxisSpacing: 12,
+                    ),
+                    itemCount: favProducts.length,
+                    itemBuilder: (context, index) {
+                      final product = favProducts[index];
+                      return ProductCard(
+                        product: product,
+                        inCart: cart.isInCart(product.id),
+                        onToggleCart: () => cart.toggleItem(product),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
     );
   }
 }

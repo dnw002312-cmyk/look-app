@@ -36,114 +36,158 @@ class _ContactScreenState extends State<ContactScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          const SizedBox(height: 16),
-          Text(
-            '¿Quieres vender?',
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Cuéntanos qué tienes y te ayudamos a publicarlo',
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: Theme.of(context)
-                      .colorScheme
-                      .onSurface
-                      .withValues(alpha: 0.6),
-                ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 32),
-          Form(
-            key: _formKey,
-            child: Column(
-              children: [
-                TextFormField(
-                  controller: _nameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Tu nombre',
-                    prefixIcon: Icon(Icons.person_outline),
-                  ),
-                  validator: (v) =>
-                      (v == null || v.trim().isEmpty) ? 'El nombre es obligatorio' : null,
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _emailController,
-                  decoration: const InputDecoration(
-                    labelText: 'Tu correo',
-                    prefixIcon: Icon(Icons.email_outlined),
-                  ),
-                  keyboardType: TextInputType.emailAddress,
-                  validator: (v) {
-                    if (v == null || v.trim().isEmpty) {
-                      return 'El correo es obligatorio';
-                    }
-                    final emailRegex = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$');
-                    if (!emailRegex.hasMatch(v.trim())) {
-                      return 'Correo no válido';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _messageController,
-                  decoration: const InputDecoration(
-                    labelText: 'Describe lo que quieres vender...',
-                    prefixIcon: Icon(Icons.message_outlined),
-                    alignLabelWithHint: true,
-                  ),
-                  maxLines: 5,
-                  validator: (v) => (v == null || v.trim().isEmpty)
-                      ? 'El mensaje no puede estar vacío'
-                      : null,
-                ),
-                const SizedBox(height: 24),
-                FilledButton(
-                  onPressed: _submit,
-                  style: FilledButton.styleFrom(
-                    minimumSize: const Size(double.infinity, 52),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  child: const Text('Enviar mensaje'),
-                ),
-              ],
-            ),
-          ),
-          if (_submitted)
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 300),
-              margin: const EdgeInsets.only(top: 24),
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    const brand = Color(0xFF6BB58C);
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          'Contacto',
+          style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+        ),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          children: [
+            Container(
+              width: 72,
+              height: 72,
               decoration: BoxDecoration(
-                color: Colors.green.withValues(alpha: 0.15),
-                border: Border.all(color: Colors.green),
-                borderRadius: BorderRadius.circular(10),
+                color: brand.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(20),
               ),
-              child: const Row(
+              child: Icon(
+                Icons.mail_outline,
+                size: 32,
+                color: brand,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              '¿Quieres vender?',
+              style: theme.textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.w800,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Cuéntanos qué tienes y te ayudamos',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: cs.onSurface.withValues(alpha: 0.5),
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 28),
+            Form(
+              key: _formKey,
+              child: Column(
                 children: [
-                  Icon(Icons.check_circle, color: Colors.green),
-                  SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      '¡Mensaje enviado! Te contactaremos pronto.',
-                      style: TextStyle(fontWeight: FontWeight.w500),
+                  TextFormField(
+                    controller: _nameController,
+                    decoration: InputDecoration(
+                      labelText: 'Tu nombre',
+                      prefixIcon: const Icon(Icons.person_outline),
+                      filled: true,
+                      fillColor: cs.surfaceContainerHighest,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                    validator: (v) =>
+                        (v == null || v.trim().isEmpty) ? 'Obligatorio' : null,
+                  ),
+                  const SizedBox(height: 14),
+                  TextFormField(
+                    controller: _emailController,
+                    decoration: InputDecoration(
+                      labelText: 'Tu correo',
+                      prefixIcon: const Icon(Icons.email_outlined),
+                      filled: true,
+                      fillColor: cs.surfaceContainerHighest,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                    keyboardType: TextInputType.emailAddress,
+                    validator: (v) {
+                      if (v == null || v.trim().isEmpty) return 'Obligatorio';
+                      if (!RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$').hasMatch(v.trim())) {
+                        return 'Correo no válido';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 14),
+                  TextFormField(
+                    controller: _messageController,
+                    decoration: InputDecoration(
+                      labelText: 'Describe lo que quieres vender...',
+                      prefixIcon: const Icon(Icons.message_outlined),
+                      filled: true,
+                      fillColor: cs.surfaceContainerHighest,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        borderSide: BorderSide.none,
+                      ),
+                      alignLabelWithHint: true,
+                    ),
+                    maxLines: 5,
+                    validator: (v) => (v == null || v.trim().isEmpty)
+                        ? 'Obligatorio'
+                        : null,
+                  ),
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 52,
+                    child: FilledButton(
+                      onPressed: _submit,
+                      style: FilledButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                      child: const Text(
+                        'Enviar mensaje',
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                      ),
                     ),
                   ),
                 ],
               ),
             ),
-        ],
+            if (_submitted)
+              Container(
+                margin: const EdgeInsets.only(top: 20),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: brand.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: brand.withValues(alpha: 0.3)),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.check_circle, color: brand),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        '¡Mensaje enviado! Te contactaremos pronto.',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          color: brand,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }

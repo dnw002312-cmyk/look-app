@@ -156,4 +156,21 @@ class ApiService {
   static Future<Map<String, dynamic>> getUser(int id) {
     return _get<Map<String, dynamic>>('/users/$id', (j) => j as Map<String, dynamic>);
   }
+
+  // AI - Outfit recommendations
+  static Future<Map<String, dynamic>> getAiOutfits({
+    required String vibe,
+    List<String>? styles,
+    Map<String, String>? sizes,
+  }) {
+    return _post<Map<String, dynamic>>(
+      '/ai/outfits',
+      {
+        'vibe': vibe,
+        'styles': styles ?? [],
+        'sizes': sizes ?? {},
+      },
+      (j) => j as Map<String, dynamic>,
+    );
+  }
 }

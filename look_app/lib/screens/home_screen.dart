@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
-import '../providers/cart_provider.dart';
 import 'auth_screen.dart';
 import 'catalog_screen.dart';
 import 'favorites_screen.dart';
-import 'upload_screen.dart';
 import 'profile_screen.dart';
+import 'ai_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -24,7 +23,6 @@ class _HomeScreenState extends State<HomeScreen> {
     if (!auth.isLoggedIn) return const AuthScreen();
 
     final theme = Theme.of(context);
-    const brand = Color(0xFF6BB58C);
 
     return Scaffold(
       body: IndexedStack(
@@ -32,7 +30,7 @@ class _HomeScreenState extends State<HomeScreen> {
         children: const [
           CatalogScreen(),
           CatalogScreen(),
-          UploadScreen(),
+          AiScreen(),
           FavoritesScreen(),
           ProfileScreen(),
         ],
@@ -148,25 +146,27 @@ class _CenterNavItem extends StatelessWidget {
     const brand = Color(0xFF6BB58C);
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        width: 56,
-        height: 56,
-        margin: const EdgeInsets.only(top: -16),
-        decoration: BoxDecoration(
-          color: brand,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: brand.withValues(alpha: 0.4),
-              blurRadius: 16,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: const Icon(
-          Icons.auto_awesome,
-          color: Colors.white,
-          size: 28,
+      child: Transform.translate(
+        offset: const Offset(0, -16),
+        child: Container(
+          width: 56,
+          height: 56,
+          decoration: BoxDecoration(
+            color: brand,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: brand.withValues(alpha: 0.4),
+                blurRadius: 16,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: const Icon(
+            Icons.auto_awesome,
+            color: Colors.white,
+            size: 28,
+          ),
         ),
       ),
     );

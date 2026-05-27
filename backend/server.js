@@ -245,6 +245,81 @@ app.post('/api/messages/:convId', auth, async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+// ===== AI — Gemini Outfit Generator =====
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
+const GEMINI_MODEL = 'gemini-2.5-flash-lite';
+const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
+
+app.post('/api/ai/outfits', async (req, res) => {
+  try {
+    const { vibe, styles, sizes } = req.body;
+    if (!vibe) return res.status(400).json({ error: 'Se requiere "vibe"' });
+    if (!GEMINI_API_KEY || GEMINI_API_KEY === 'pon-tu-api-key-aqui') {
+      return res.status(400).json({ error: 'API key de Gemini no configurada. Edita backend/.env y pon tu GEMINI_API_KEY.' });
+    }
+
+    const { data: products } = await supabase.from('products').select('*').limit(50);
+    const catalog = (products || []).map(p => ({
+      name: p.name, category: p.category, brand: p.brand,
+      price: `₡${(p.price / 1000).toFixed(0)}`, size: p.size,
+      color: p.color, condition: p.condition, gender: p.gender,
+      style: p.style, description: p.description,
+    }));
+
+    const prompt = `Eres un stylist personal experto en moda circular y segunda mano.
+
+Genera EXACTAMENTE 4 outfits completos para el vibe: "${vibe}".
+Estilos del usuario: ${(styles || []).join(', ') || 'variado'}.
+Tallas: top ${sizes?.top || 'M'}, bottom ${sizes?.bottom || 'M'}, shoes ${sizes?.shoes || '40'}.
+
+Catálogo disponible: ${JSON.stringify(catalog)}
+
+IMPORTANTE: Para cada outfit usa NOMBRES de prendas y marcas CREÍBLES y REALISTAS de segunda mano (Zara, Mango, Levi's, H&M, Nike, COS, Massimo Dutti, vintage, etc). Precios entre 8€ y 80€ por pieza. 3-4 items por outfit.
+
+Responde SOLO con JSON válido (sin markdown, sin \`\`\`):
+{"outfits":[{"title":"Nombre creativo del look","description":"1 frase descriptiva","items":[{"type":"Top|Bottom|Shoes|Accesorio|Outerwear","name":"Nombre prenda","brand":"Marca","price":25,"color":"Color","why":"Por qué encaja en este look"}],"totalPrice":120,"tags":["estilo1","estilo2"]}]}`;
+
+    const body = {
+      contents: [{ parts: [{ text: prompt }] }],
+      generationConfig: {
+        temperature: 0.9,
+        maxOutputTokens: 4096,
+        responseMimeType: 'application/json',
+      },
+    };
+
+    const geminiRes = await fetch(GEMINI_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+
+    if (!geminiRes.ok) {
+      const errText = await geminiRes.text();
+      console.error('Gemini error:', geminiRes.status, errText);
+      return res.status(502).json({ error: `Gemini API error ${geminiRes.status}: ${errText.slice(0, 200)}` });
+    }
+
+    const geminiData = await geminiRes.json();
+    const text = geminiData?.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!text) return res.status(502).json({ error: 'Respuesta vacía de Gemini' });
+
+    let outfits;
+    try {
+      outfits = JSON.parse(text);
+    } catch {
+      const m = text.match(/\{[\s\S]*\}/);
+      if (m) outfits = JSON.parse(m[0]);
+      else throw new Error('No se pudo parsear JSON');
+    }
+
+    res.json(outfits);
+  } catch (err) {
+    console.error('AI error:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ===== STARTUP =====
 async function seed() {
   const { count: userCount } = await supabase.from('users').select('*', { count: 'exact', head: true });

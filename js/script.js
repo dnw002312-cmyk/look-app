@@ -2,15 +2,14 @@
    LOOK — Supabase direct client
    ============================================ */
 
-const API_URL = 'http://localhost:3001';
+const SUPABASE_URL = 'https://dbsoyafdebycalaakdlz.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRic295YWZkZWJ5Y2FsYWFrZGx6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyODA4NDUsImV4cCI6MjA5NDg1Njg0NX0.a_ATmjgMO_P8pEcnMtK-zWuIja3ukGmVC2z7_3zMqyA';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-async function api(path, options = {}) {
-  const token = localStorage.getItem('look_token');
-  const headers = { 'Content-Type': 'application/json', ...options.headers };
-  if (token) headers['Authorization'] = token;
-  const res = await fetch(`${API_URL}${path}`, { ...options, headers });
-  if (!res.ok) { const err = await res.json().catch(() => ({ error: 'Error de red' })); throw new Error(err.error || 'Error de red'); }
-  return res.json();
+async function supadata(promise) {
+  const { data, error } = await promise;
+  if (error) throw new Error(error.message);
+  return data;
 }
 
 function formatPrice(n) { return '\u20A1' + Number(n).toLocaleString('es-CR'); }
@@ -68,11 +67,11 @@ const $$ = (sel) => document.querySelectorAll(sel);
 async function loadInitialData() {
   try {
     const [productsData, cartData, favsData, followsData, msgsData] = await Promise.all([
-      api('/products').catch(() => null),
-      currentUser ? api('/cart').catch(() => []) : Promise.resolve([]),
-      currentUser ? api('/favorites').catch(() => []) : Promise.resolve([]),
-      currentUser ? api('/follows').catch(() => []) : Promise.resolve([]),
-      currentUser ? api('/messages').catch(() => ({})) : Promise.resolve({}),
+      supadata(sb.from('products').select('*').order('date_posted', { ascending: false })).catch(() => null),
+      currentUser ? supadata(sb.from('carts').select('product_id AS id, name, icon, effective_price AS effectivePrice').eq('user_id', currentUser.id)).catch(() => []) : Promise.resolve([]),
+      currentUser ? supadata(sb.from('favorites').select('product_id').eq('user_id', currentUser.id)).catch(() => []) : Promise.resolve([]),
+      currentUser ? supadata(sb.from('follows').select('seller_id').eq('user_id', currentUser.id)).catch(() => []) : Promise.resolve([]),
+      currentUser ? supadata(sb.from('messages').select('*').or(`conv_id.ilike.%-${currentUser.id},conv_id.ilike.${currentUser.id}-%`)).catch(() => []) : Promise.resolve([]),
     ]);
 
     if (productsData) products = productsData.map(p => ({
@@ -82,9 +81,14 @@ async function loadInitialData() {
       description: p.description, datePosted: p.date_posted, likes: p.likes
     }));
     cart = (cartData || []).map(i => ({ id: i.id, name: i.name, icon: i.icon, effectivePrice: i.effectivePrice }));
-    favoriteIds = new Set((favsData || []).map(i => i));
-    followingIds = new Set((followsData || []).map(i => i));
-    messages = msgsData || {};
+    favoriteIds = new Set((favsData || []).map(i => i.product_id));
+    followingIds = new Set((followsData || []).map(i => i.seller_id));
+    const convs = {};
+    for (const msg of msgsData || []) {
+      if (!convs[msg.conv_id]) convs[msg.conv_id] = [];
+      convs[msg.conv_id].push({ from: msg.from_user, text: msg.text, time: msg.time });
+    }
+    messages = convs;
 
     renderCart();
     if (document.getElementById('productsContainer')) renderProducts();
@@ -116,9 +120,10 @@ async function handleLogin(e) {
   e.preventDefault();
   const email = $('#loginForm input[type="email"]').value;
   try {
-    const data = await api('/auth/login', { method: 'POST', body: JSON.stringify({ email }) });
-    currentUser = mapUser(data.user);
-    localStorage.setItem('look_token', data.token);
+    const { data: users, error } = await sb.from('users').select('*').eq('email', email);
+    if (error) throw error;
+    if (!users || users.length === 0) throw new Error('Usuario no encontrado');
+    currentUser = mapUser(users[0]);
     localStorage.setItem('look_user', JSON.stringify(currentUser));
     updateAuthUI();
     closeAuth();
@@ -136,9 +141,12 @@ async function handleRegister(e) {
   const confirm = $$('#registerForm input[type="password"]')[1].value;
   if (pass !== confirm) { showFormError('#registerForm', 'Las contraseñas no coinciden'); return; }
   try {
-    const data = await api('/auth/register', { method: 'POST', body: JSON.stringify({ name, email, password: pass }) });
-    currentUser = mapUser(data.user);
-    localStorage.setItem('look_token', data.token);
+    const { data: newUser, error } = await sb.from('users').insert({
+      name, email, password: pass, photo: 'person',
+      join_date: new Date().toISOString().split('T')[0]
+    }).select().single();
+    if (error) throw error;
+    currentUser = mapUser(newUser);
     localStorage.setItem('look_user', JSON.stringify(currentUser));
     updateAuthUI();
     closeAuth();
@@ -151,7 +159,6 @@ async function handleRegister(e) {
 function handleLogout() {
   currentUser = null;
   localStorage.removeItem('look_user');
-  localStorage.removeItem('look_token');
   updateAuthUI();
   location.reload();
 }
@@ -176,7 +183,10 @@ function handleProfileSubmit(e) {
 async function saveProfile(data) {
   if (!currentUser) return;
   try {
-    const updated = await api('/users/profile', { method: 'PUT', body: JSON.stringify(data) });
+    const { data: updated, error } = await sb.from('users').update({
+      name: data.name, email: data.email, description: data.description, photo: data.photo
+    }).eq('id', currentUser.id).select().single();
+    if (error) throw error;
     currentUser = mapUser(updated);
     localStorage.setItem('look_user', JSON.stringify(currentUser));
     updateAuthUI();
@@ -346,8 +356,14 @@ function openProductDetail(id) {
 async function toggleFavorite(id) {
   if (!requireAuth()) return;
   try {
-    const result = await api('/favorites/toggle', { method: 'POST', body: JSON.stringify({ productId: id }) });
-    favoriteIds = new Set(result);
+    const { data: existing } = await sb.from('favorites').select('product_id').eq('user_id', currentUser.id).eq('product_id', id);
+    if (existing && existing.length > 0) {
+      await sb.from('favorites').delete().eq('user_id', currentUser.id).eq('product_id', id);
+      favoriteIds.delete(id);
+    } else {
+      await sb.from('favorites').insert({ user_id: currentUser.id, product_id: id });
+      favoriteIds.add(id);
+    }
   } catch (e) {
     if (favoriteIds.has(id)) favoriteIds.delete(id); else favoriteIds.add(id);
   }
@@ -362,8 +378,14 @@ async function toggleFavorite(id) {
 async function toggleFollow(sellerId) {
   if (!currentUser) { openAuth(); return; }
   try {
-    const result = await api('/follows/toggle', { method: 'POST', body: JSON.stringify({ sellerId }) });
-    followingIds = new Set(result);
+    const { data: existing } = await sb.from('follows').select('seller_id').eq('user_id', currentUser.id).eq('seller_id', sellerId);
+    if (existing && existing.length > 0) {
+      await sb.from('follows').delete().eq('user_id', currentUser.id).eq('seller_id', sellerId);
+      followingIds.delete(sellerId);
+    } else {
+      await sb.from('follows').insert({ user_id: currentUser.id, seller_id: sellerId });
+      followingIds.add(sellerId);
+    }
   } catch (e) {
     if (followingIds.has(sellerId)) followingIds.delete(sellerId); else followingIds.add(sellerId);
   }
@@ -465,8 +487,10 @@ async function sendMessage() {
   const text = input.value.trim();
   if (!text || !currentChatId || !currentUser) return;
   try {
-    const msgs = await api(`/messages/${currentChatId}`, { method: 'POST', body: JSON.stringify({ text }) });
-    messages[currentChatId] = msgs;
+    const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    await sb.from('messages').insert({ conv_id: currentChatId, from_user: currentUser.id, text, time });
+    if (!messages[currentChatId]) messages[currentChatId] = [];
+    messages[currentChatId].push({ from: currentUser.id, text, time });
   } catch (e) {
     if (!messages[currentChatId]) messages[currentChatId] = [];
     messages[currentChatId].push({ from: currentUser.id, text, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) });
@@ -514,29 +538,31 @@ async function handleUpload(e) {
   const brand = $('#uploadBrand').value.trim();
   const condition = document.querySelector('input[name="condition"]:checked')?.value || 'nuevo';
   if (!name || !price || !category) return;
+  const iconList = { mujer: 'skirt', hombre: 'shirt', accesorios: 'sunglasses' };
   try {
-    const newProduct = await api('/products', {
-      method: 'POST',
-      body: JSON.stringify({ name, price, description: desc, category, size, color, brand, condition }),
-    });
-    const product = {
+    const { data: newProduct, error } = await sb.from('products').insert({
+      name, category, price: parseInt(price), icon: iconList[category] || 'shirt',
+      seller_id: currentUser.id, size, color, brand, condition,
+      description: desc, date_posted: new Date().toISOString().split('T')[0]
+    }).select().single();
+    if (error) throw error;
+    products.unshift({
       id: newProduct.id, name: newProduct.name, category: newProduct.category,
       price: newProduct.price, icon: newProduct.icon, sellerId: newProduct.seller_id,
       size: newProduct.size, color: newProduct.color, brand: newProduct.brand,
       condition: newProduct.condition, gender: newProduct.gender, style: newProduct.style,
       location: newProduct.location, description: newProduct.description,
-      datePosted: newProduct.date_posted, likes: newProduct.likes,
-    };
-    products.unshift(product);
+      datePosted: newProduct.date_posted, likes: newProduct.likes
+    });
   } catch (e) {
     console.warn('Upload failed:', e.message);
-    const newProduct = {
-      id: Date.now(), name, category, price, icon: 'shirt',
-      sellerId: currentUser.id, size, color, brand, condition, style: 'casual',
+    products.unshift({
+      id: Date.now(), name, category, price, icon: iconList[category] || 'shirt',
+      sellerId: currentUser.id, size, color, brand, condition,
       gender: category === 'hombre' ? 'hombre' : 'mujer',
-      location: '', description: desc, datePosted: new Date().toISOString().split('T')[0], likes: 0,
-    };
-    products.unshift(newProduct);
+      style: 'casual', location: '', description: desc,
+      datePosted: new Date().toISOString().split('T')[0], likes: 0
+    });
   }
   closeModal('uploadModal');
   renderProducts();
@@ -545,13 +571,18 @@ async function handleUpload(e) {
 // ===== CART =====
 async function addToCart(productId) {
   if (!requireAuth()) return;
+  const product = products.find(p => p.id === productId);
+  if (!product) return;
   if (cart.some(item => item.id === productId)) return;
   try {
-    const items = await api('/cart', { method: 'POST', body: JSON.stringify({ productId }) });
-    cart = items;
+    const { error } = await sb.from('carts').insert({
+      user_id: currentUser.id, product_id: product.id,
+      name: product.name, icon: product.icon, effective_price: product.price
+    });
+    if (error && error.code !== '23505') throw error;
+    cart.push({ id: product.id, name: product.name, icon: product.icon, effectivePrice: product.price });
   } catch (e) {
-    const product = products.find(p => p.id === productId);
-    if (product) cart.push({ id: product.id, name: product.name, icon: product.icon, effectivePrice: product.price });
+    cart.push({ id: product.id, name: product.name, icon: product.icon, effectivePrice: product.price });
   }
   renderCart();
   renderProducts();
@@ -559,8 +590,8 @@ async function addToCart(productId) {
 
 async function removeFromCart(id) {
   try {
-    const items = await api(`/cart/${id}`, { method: 'DELETE' });
-    cart = items;
+    await sb.from('carts').delete().eq('user_id', currentUser.id).eq('product_id', id);
+    cart = cart.filter(item => item.id !== id);
   } catch (e) {
     cart = cart.filter(item => item.id !== id);
   }
@@ -759,7 +790,7 @@ document.addEventListener('click', (e) => {
 document.addEventListener('click', (e) => {
   if (!e.target.closest('#checkoutBtn')) return;
   if (cart.length === 0) return;
-  api('/cart/checkout', { method: 'POST' }).catch(() => {});
+  sb.from('carts').delete().eq('user_id', currentUser.id).catch(() => {});
   cart = [];
   renderCart();
   renderProducts();

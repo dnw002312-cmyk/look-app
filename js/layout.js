@@ -311,7 +311,7 @@ function renderLayout(pageTitle) {
               <div class="upload-image-area" id="uploadImageArea">
                 <span class="material-icons-outlined">add_a_photo</span>
                 <p>Haz clic para subir una imagen</p>
-                <input type="file" id="uploadImage" accept="image/*" hidden />
+                <input type="file" id="uploadImage" hidden />
               </div>
             </div>
             <button type="submit" class="btn btn--primary btn--full btn--lg">Publicar producto</button>

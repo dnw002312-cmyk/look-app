@@ -261,7 +261,7 @@ app.post('/api/ai/outfits', async (req, res) => {
     const { data: products } = await supabase.from('products').select('*').limit(50);
     const catalog = (products || []).map(p => ({
       name: p.name, category: p.category, brand: p.brand,
-      price: `₡${(p.price / 1000).toFixed(0)}`, size: p.size,
+      price: `₡${p.price}`, size: p.size,
       color: p.color, condition: p.condition, gender: p.gender,
       style: p.style, description: p.description,
     }));
@@ -274,7 +274,7 @@ Tallas: top ${sizes?.top || 'M'}, bottom ${sizes?.bottom || 'M'}, shoes ${sizes?
 
 Catálogo disponible: ${JSON.stringify(catalog)}
 
-IMPORTANTE: Para cada outfit usa NOMBRES de prendas y marcas CREÍBLES y REALISTAS de segunda mano (Zara, Mango, Levi's, H&M, Nike, COS, Massimo Dutti, vintage, etc). Precios entre 8€ y 80€ por pieza. 3-4 items por outfit.
+IMPORTANTE: Para cada outfit usa NOMBRES de prendas y marcas CREÍBLES y REALISTAS de segunda mano (Zara, Mango, Levi's, H&M, Nike, COS, Massimo Dutti, vintage, etc). Precios EN COLONES COSTARRICENSES (₡): entre ₡3,000 y ₡60,000 por pieza. 3-4 items por outfit.
 
 Responde SOLO con JSON válido (sin markdown, sin \`\`\`):
 {"outfits":[{"title":"Nombre creativo del look","description":"1 frase descriptiva","items":[{"type":"Top|Bottom|Shoes|Accesorio|Outerwear","name":"Nombre prenda","brand":"Marca","price":25,"color":"Color","why":"Por qué encaja en este look"}],"totalPrice":120,"tags":["estilo1","estilo2"]}]}`;
@@ -284,9 +284,11 @@ Responde SOLO con JSON válido (sin markdown, sin \`\`\`):
       generationConfig: {
         temperature: 0.9,
         maxOutputTokens: 4096,
-        responseMimeType: 'application/json',
       },
     };
+
+    console.log('🤖 Llamando a Gemini con vibe:', vibe);
+    console.log('📦 Body:', JSON.stringify(body, null, 2).substring(0, 500) + '...');
 
     const geminiRes = await fetch(GEMINI_URL, {
       method: 'POST',
@@ -296,8 +298,9 @@ Responde SOLO con JSON válido (sin markdown, sin \`\`\`):
 
     if (!geminiRes.ok) {
       const errText = await geminiRes.text();
-      console.error('Gemini error:', geminiRes.status, errText);
-      return res.status(502).json({ error: `Gemini API error ${geminiRes.status}: ${errText.slice(0, 200)}` });
+      console.error('❌ Gemini error:', geminiRes.status);
+      console.error('📄 Error completo:', errText);
+      return res.status(502).json({ error: `Gemini API error ${geminiRes.status}: ${errText.slice(0, 300)}` });
     }
 
     const geminiData = await geminiRes.json();

@@ -356,7 +356,7 @@ class _OutfitCard extends StatelessWidget {
                         ],
                       ),
                     ),
-                    Text('${outfit.totalPrice}€ total', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Colors.white)),
+                    Text('₡${outfit.totalPrice}', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Colors.white)),
                   ],
                 ),
                 const SizedBox(height: 10),
@@ -399,7 +399,7 @@ class _OutfitCard extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Flexible(child: Text(item.name, style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700), overflow: TextOverflow.ellipsis)),
-                          Text('${item.price}€', style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800)),
+                          Text('₡${item.price}', style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800)),
                         ],
                       ),
                       const SizedBox(height: 2),

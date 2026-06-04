@@ -1,5 +1,3 @@
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
-
 function getToken(): string | null {
   return localStorage.getItem("look_token");
 }
@@ -22,7 +20,7 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   if (token) {
     headers["Authorization"] = token;
   }
-  const res = await fetch(`${API_URL}${path}`, { ...options, headers });
+  const res = await fetch(path, { ...options, headers });
   if (!res.ok) {
     const err = await res.json().catch(() => ({ error: "Error de red" }));
     throw new Error(err.error || "Error de red");

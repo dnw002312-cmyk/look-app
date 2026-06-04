@@ -2,9 +2,9 @@
 
 ## Proyecto
 Marketplace de compra y venta de ropa (moda circular). Tres implementaciones:
-- **Web**: React + TanStack Start + Tailwind CSS (carpeta `web/`)
+- **Web + API**: React + TanStack Start + Tailwind CSS (carpeta `web/`). La API (Express migrado) corre en el mismo Cloudflare Worker.
 - **App Android**: Flutter con Provider + SharedPreferences (carpeta `look_app/`)
-- **Backend**: Express + Supabase (carpeta `backend/`)
+- **Base de datos**: Supabase (carpeta `backend/` contiene schema.sql y server.express.js de respaldo)
 
 ## Estructura
 ```
@@ -17,8 +17,10 @@ RopexChange/
 │   │   │   ├── MobileShell.tsx
 │   │   │   ├── ProductCard.tsx
 │   │   │   └── ui/
+│   │   ├── api/
+│   │   │   └── handler.ts     # API routes (Cloudflare Worker, mismo origen)
 │   │   ├── lib/
-│   │   │   ├── api.ts          # Servicio API (conecta con backend Express)
+│   │   │   ├── api.ts          # Servicio API (rutas relativas /api/*)
 │   │   │   ├── favorites.tsx   # Context de favoritos
 │   │   │   ├── mock-data.ts    # Datos de respaldo
 │   │   │   ├── store.tsx       # Estado global (auth, productos, perfil)
@@ -45,8 +47,8 @@ RopexChange/
 │   ├── package.json
 │   ├── vite.config.ts
 │   └── .env                    # VITE_API_URL apunta al backend
-├── backend/                    # Backend Express + Supabase
-│   ├── server.js
+├── backend/                    # Schema SQL (respaldo Express)
+│   ├── server.express.js
 │   ├── db.js
 │   ├── schema.sql
 │   └── package.json
@@ -171,15 +173,27 @@ Token de auth en localStorage (web) o SharedPreferences (Flutter).
 
 ## Deploy (producción)
 ```powershell
-# 1. Railway → backend
-# Subir carpeta backend/ a railway.app
-# Railway da una URL: https://look-backend.up.railway.app
+# 1. Railway → backend (YA NO — migrado a Cloudflare Workers)
+# El backend Express se migró a web/src/api/handler.ts y corre en el mismo Worker que el frontend.
 
-# 2. Vercel/Cloudflare → web
+# 2. Cloudflare Workers → web
 cd web
-# Cambiar VITE_API_URL en .env a la URL de Railway
+
+# Configurar secrets (solo la primera vez)
+npx wrangler secret put SUPABASE_SERVICE_KEY
+npx wrangler secret put GEMINI_API_KEY
+
+# Build (produce dist/client/ + dist/server/)
 npm run build
-# Subir carpeta web/ a vercel.com o Cloudflare Pages
+
+# Login en Cloudflare (solo la primera vez)
+npx wrangler login
+
+# Deploy a Cloudflare Workers
+npx wrangler deploy
+
+# La URL será: https://look-marketplace.<tu-subdomain>.workers.dev
+# Para dominio personalizado: Dashboard Cloudflare → Workers → look-marketplace → Triggers
 
 # 3. Windows .exe (Flutter)
 # IMPORTANTE: copiar a ruta sin acentos (build falla con "ó","é",etc)
@@ -201,7 +215,9 @@ npm start
 cd web
 npm install
 npm run dev         # http://localhost:3000
-npm run build
+npm run build       # build para Cloudflare (dist/client/ + dist/server/)
+npx wrangler deploy # deploy a Cloudflare Workers
+npx wrangler login  # login inicial en Cloudflare
 
 # Flutter
 cd look_app

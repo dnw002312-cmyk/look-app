@@ -1,27 +1,39 @@
 import { createServerFn } from "@tanstack/react-start";
 
-const GATEWAY = "https://ai.gateway.lovable.dev/v1/chat/completions";
+const GEMINI_URL =
+  "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent";
 
 type Msg = { role: "system" | "user" | "assistant"; content: string };
 
-async function callAI(messages: Msg[], opts?: { json?: boolean; model?: string }) {
-  const key = process.env.LOVABLE_API_KEY;
-  if (!key) throw new Error("LOVABLE_API_KEY not configured");
-  const res = await fetch(GATEWAY, {
+async function callGemini(messages: Msg[], opts?: { json?: boolean; model?: string }) {
+  const key = process.env.GEMINI_API_KEY;
+  if (!key) throw new Error("GEMINI_API_KEY no configurada. Usa wrangler secret put GEMINI_API_KEY.");
+
+  const system = messages.find((m) => m.role === "system")?.content ?? "";
+  const turns = messages.filter((m) => m.role !== "system");
+  const contents = [
+    ...(system ? [{ role: "user" as const, parts: [{ text: system }] }, { role: "model" as const, parts: [{ text: "Entendido." }] }] : []),
+    ...turns.map((m) => ({ role: m.role === "user" ? ("user" as const) : ("model" as const), parts: [{ text: m.content }] })),
+  ];
+
+  const res = await fetch(`${GEMINI_URL}?key=${key}`, {
     method: "POST",
-    headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      model: opts?.model ?? "google/gemini-2.5-flash",
-      messages,
-      ...(opts?.json ? { response_format: { type: "json_object" } } : {}),
+      contents,
+      generationConfig: {
+        temperature: 0.9,
+        maxOutputTokens: 4096,
+        ...(opts?.json ? { responseMimeType: "application/json" } : {}),
+      },
     }),
   });
   if (!res.ok) {
     const t = await res.text();
-    throw new Error(`AI gateway error ${res.status}: ${t.slice(0, 200)}`);
+    throw new Error(`Gemini API error ${res.status}: ${t.slice(0, 200)}`);
   }
   const data = await res.json();
-  return data.choices?.[0]?.message?.content ?? "";
+  return data?.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
 }
 
 /** Chat with an AI playing a seller persona. */
@@ -39,7 +51,7 @@ export const aiSellerReply = createServerFn({ method: "POST" })
         content: m.text,
       })),
     ];
-    const reply = await callAI(msgs);
+    const reply = await callGemini(msgs);
     return { reply };
   });
 
@@ -115,7 +127,7 @@ Responde con este JSON exacto:
 
 Marcas plausibles: Levi's, COS, Zara, Carhartt, Vintage, & Other Stories, Mango, New Balance, Nike, Adidas, Stüssy, Patagonia, Massimo Dutti, Bershka. Precios realistas de segunda mano (8-80€ por pieza). 3-4 items por outfit.`,
     };
-    const raw = await callAI([system, user], { json: true });
+    const raw = await callGemini([system, user], { json: true });
     try {
       return JSON.parse(raw);
     } catch {

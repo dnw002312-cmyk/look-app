@@ -1,6 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { MobileShell } from "@/components/MobileShell";
 import { Logo } from "@/components/Logo";
 import { ChevronLeft, Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { useStore } from "@/lib/store";
@@ -30,13 +29,13 @@ function Login() {
   };
 
   return (
-    <MobileShell>
-      <div className="flex min-h-[100dvh] flex-col bg-background px-6 pb-8 pt-6">
+    <div className="flex min-h-[100dvh] flex-col items-center justify-center bg-gradient-to-br from-[oklch(0.95_0.04_153)] to-[oklch(0.93_0.02_240)] px-4 py-10">
+      <div className="w-full max-w-md rounded-3xl border border-border bg-card p-8 shadow-2xl shadow-ink/10">
         <button onClick={() => nav({ to: "/" })} className="grid h-10 w-10 place-items-center rounded-full bg-muted">
           <ChevronLeft className="h-5 w-5 text-ink" />
         </button>
 
-        <div className="mt-8 flex flex-col items-center">
+        <div className="mt-6 flex flex-col items-center">
           <Logo size={56} variant="ink" />
           <h1 className="mt-5 text-3xl font-extrabold tracking-[-0.03em] text-ink">Bienvenida de nuevo</h1>
           <p className="mt-1 text-sm text-muted-foreground">Inicia sesión para seguir comprando y vendiendo</p>
@@ -44,7 +43,7 @@ function Login() {
 
         <form
           onSubmit={(e) => { e.preventDefault(); go(); }}
-          className="mt-8 space-y-3"
+          className="mt-6 space-y-3"
         >
           {error && (
             <div className="rounded-2xl bg-destructive/10 px-4 py-3 text-sm text-destructive">
@@ -66,7 +65,7 @@ function Login() {
             <button type="button" className="text-xs font-semibold text-brand">¿Olvidaste tu contraseña?</button>
           </div>
 
-          <button type="submit" disabled={loading} className="mt-4 w-full rounded-full bg-ink py-4 text-base font-semibold text-white shadow-lg shadow-ink/20 transition active:scale-[0.98] disabled:opacity-50">
+          <button type="submit" disabled={loading} className="mt-2 w-full rounded-full bg-ink py-4 text-base font-semibold text-white shadow-lg shadow-ink/20 transition active:scale-[0.98] disabled:opacity-50">
             {loading ? "Ingresando..." : "Ingresar"}
           </button>
         </form>
@@ -79,10 +78,10 @@ function Login() {
           <button onClick={go} className="rounded-full border border-border bg-card py-3 text-sm font-semibold text-ink">Apple</button>
         </div>
 
-        <p className="mt-auto pt-8 text-center text-sm text-muted-foreground">
+        <p className="mt-6 text-center text-sm text-muted-foreground">
           ¿No tienes cuenta? <Link to="/register" className="font-bold text-ink">Crear cuenta</Link>
         </p>
       </div>
-    </MobileShell>
+    </div>
   );
 }

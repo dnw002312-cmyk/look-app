@@ -1,6 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useRef, useState } from "react";
-import { MobileShell } from "@/components/MobileShell";
 import { useStore } from "@/lib/store";
 import { ChevronLeft, Check, Camera, Sparkles, Loader2 } from "lucide-react";
 
@@ -94,8 +93,8 @@ function Register() {
   };
 
   return (
-    <MobileShell>
-      <div className="flex min-h-[100dvh] flex-col bg-background px-6 pb-8 pt-6">
+    <div className="flex min-h-[100dvh] flex-col items-center justify-center bg-gradient-to-br from-[oklch(0.95_0.04_153)] to-[oklch(0.93_0.02_240)] px-4 py-10">
+      <div className="flex w-full max-w-md flex-col rounded-3xl border border-border bg-card p-8 shadow-2xl shadow-ink/10">
         <div className="flex items-center gap-3">
           <button onClick={back} className="grid h-10 w-10 place-items-center rounded-full bg-muted">
             <ChevronLeft className="h-5 w-5 text-ink" />
@@ -108,7 +107,7 @@ function Register() {
           <span className="text-xs font-bold text-muted-foreground">{step}/{TOTAL}</span>
         </div>
 
-        <div className="mt-8 flex-1">
+        <div className="mt-6 flex-1">
           {step === 1 && (
             <Step title="Crea tu perfil" subtitle="Empecemos con lo básico">
               <Input label="Nombre" placeholder="Sofía Marín" onChange={(v) => setData({ ...data, name: v })} />
@@ -230,7 +229,7 @@ function Register() {
           )}
         </button>
       </div>
-    </MobileShell>
+    </div>
   );
 }
 

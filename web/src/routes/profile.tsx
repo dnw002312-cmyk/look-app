@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { MobileShell } from "@/components/MobileShell";
+import { AppShell } from "@/components/AppShell";
 import { BottomNav } from "@/components/BottomNav";
 import { useStore } from "@/lib/store";
 import { useFavorites } from "@/lib/favorites";
@@ -26,84 +26,90 @@ function Profile() {
   const list = tab === "closet" ? closet : tab === "favs" ? favProducts : allProducts.slice(4, 8);
 
   return (
-    <MobileShell>
+    <AppShell>
       <div className="flex min-h-[100dvh] flex-col bg-background">
-        <header className="ink-gradient relative px-5 pb-16 pt-6 text-white">
-          <div className="flex items-center justify-between">
-            <button className="grid h-10 w-10 place-items-center rounded-full bg-white/10">
-              <Share2 className="h-4 w-4" />
-            </button>
-            <h1 className="text-sm font-semibold uppercase tracking-wider">Mi perfil</h1>
-            <button onClick={signOut} className="grid h-10 w-10 place-items-center rounded-full bg-white/10" aria-label="Salir">
-              <LogOut className="h-4 w-4" />
-            </button>
-          </div>
-          <div className="mt-6 flex flex-col items-center text-center">
-            <div className="relative">
-              <img src={profile.avatar} className="h-24 w-24 rounded-full border-4 border-white object-cover" alt="" />
-              <button onClick={() => fileRef.current?.click()} className="absolute -bottom-1 -right-1 grid h-8 w-8 place-items-center rounded-full bg-brand ring-4 ring-[color:var(--ink)]">
-                <Camera className="h-3.5 w-3.5 text-ink" />
+        <header className="ink-gradient relative px-5 pb-16 pt-6 text-white md:px-8 md:pt-8">
+          <div className="mx-auto max-w-6xl">
+            <div className="flex items-center justify-between">
+              <button className="grid h-10 w-10 place-items-center rounded-full bg-white/10 hover:bg-white/20">
+                <Share2 className="h-4 w-4" />
               </button>
-              <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) onAvatar(f); e.currentTarget.value = ""; }} />
-              {profile.verified && (
-                <span className="absolute -top-1 -right-1 grid h-6 w-6 place-items-center rounded-full bg-white">
-                  <BadgeCheck className="h-4 w-4 text-brand" />
-                </span>
-              )}
+              <h1 className="text-sm font-semibold uppercase tracking-wider">Mi perfil</h1>
+              <button onClick={signOut} className="grid h-10 w-10 place-items-center rounded-full bg-white/10 hover:bg-white/20" aria-label="Salir">
+                <LogOut className="h-4 w-4" />
+              </button>
             </div>
-            <h2 className="mt-3 text-xl font-extrabold">{profile.name}</h2>
-            <p className="text-xs text-white/60">{profile.username}</p>
-            <p className="mt-2 max-w-[260px] text-sm text-white/80">{profile.bio}</p>
+            <div className="mt-6 flex flex-col items-center text-center md:mt-8 md:flex-row md:items-center md:gap-8 md:text-left">
+              <div className="relative">
+                <img src={profile.avatar} className="h-24 w-24 rounded-full border-4 border-white object-cover" alt="" />
+                <button onClick={() => fileRef.current?.click()} className="absolute -bottom-1 -right-1 grid h-8 w-8 place-items-center rounded-full bg-brand ring-4 ring-[color:var(--ink)]">
+                  <Camera className="h-3.5 w-3.5 text-ink" />
+                </button>
+                <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) onAvatar(f); e.currentTarget.value = ""; }} />
+                {profile.verified && (
+                  <span className="absolute -top-1 -right-1 grid h-6 w-6 place-items-center rounded-full bg-white">
+                    <BadgeCheck className="h-4 w-4 text-brand" />
+                  </span>
+                )}
+              </div>
+              <div className="mt-3 md:mt-0 md:flex-1">
+                <h2 className="text-xl font-extrabold md:text-2xl">{profile.name}</h2>
+                <p className="text-xs text-white/60">{profile.username}</p>
+                <p className="mt-2 max-w-md text-sm text-white/80">{profile.bio}</p>
+              </div>
+            </div>
           </div>
         </header>
 
-        <div className="-mt-10 mx-5 grid grid-cols-3 gap-3 rounded-3xl bg-card p-4 shadow-xl shadow-ink/10">
-          <Stat icon={<ShoppingBag className="h-4 w-4" />} value={userProducts.length || profile.sales} label="Publicaciones" />
-          <Stat icon={<Star className="h-4 w-4 fill-brand text-brand" />} value={profile.rating} label="Valoración" />
-          <Stat icon={<Heart className="h-4 w-4 text-brand" />} value={favorites.length} label="Favoritos" />
-        </div>
-
-        <div className="mt-5 grid grid-cols-2 gap-3 px-5">
-          <button onClick={() => { const n = prompt("Tu nombre", profile.name); if (n) setProfile({ name: n }); }} className="flex items-center justify-center gap-2 rounded-full border border-border bg-card py-3 text-sm font-semibold text-ink">
-            <Edit3 className="h-4 w-4" /> Editar perfil
-          </button>
-          <Link to="/sell" className="flex items-center justify-center gap-2 rounded-full bg-brand py-3 text-sm font-semibold text-ink">
-            + Subir prenda
-          </Link>
-        </div>
-
-        <div className="mt-6 px-5 pb-4">
-          <div className="flex gap-2 border-b border-border">
-            <Tab active={tab === "closet"} onClick={() => setTab("closet")}>Mi closet</Tab>
-            <Tab active={tab === "favs"} onClick={() => setTab("favs")}><Heart className="h-3.5 w-3.5" /> Favoritos</Tab>
-            <Tab active={tab === "hist"} onClick={() => setTab("hist")}><Clock className="h-3.5 w-3.5" /> Historial</Tab>
+        <div className="mx-auto w-full max-w-6xl px-5 md:px-8">
+          <div className="-mt-10 grid grid-cols-3 gap-3 rounded-3xl bg-card p-4 shadow-xl shadow-ink/10 md:max-w-md">
+            <Stat icon={<ShoppingBag className="h-4 w-4" />} value={userProducts.length || profile.sales} label="Publicaciones" />
+            <Stat icon={<Star className="h-4 w-4 fill-brand text-brand" />} value={profile.rating} label="Valoración" />
+            <Stat icon={<Heart className="h-4 w-4 text-brand" />} value={favorites.length} label="Favoritos" />
           </div>
-          {list.length === 0 ? (
-            <div className="grid place-items-center py-12 text-center">
-              <p className="text-sm font-semibold text-ink">{tab === "favs" ? "Aún no tienes favoritos" : "Nada por aquí"}</p>
-              <Link to="/search" className="mt-3 rounded-full bg-ink px-4 py-2 text-xs font-bold text-white">Explorar</Link>
+
+          <div className="mt-5 grid grid-cols-2 gap-3 md:max-w-md">
+            <button onClick={() => { const n = prompt("Tu nombre", profile.name); if (n) setProfile({ name: n }); }} className="flex items-center justify-center gap-2 rounded-full border border-border bg-card py-3 text-sm font-semibold text-ink">
+              <Edit3 className="h-4 w-4" /> Editar perfil
+            </button>
+            <Link to="/sell" className="flex items-center justify-center gap-2 rounded-full bg-brand py-3 text-sm font-semibold text-ink">
+              + Subir prenda
+            </Link>
+          </div>
+
+          <div className="mt-6 pb-8">
+            <div className="flex gap-2 border-b border-border">
+              <Tab active={tab === "closet"} onClick={() => setTab("closet")}>Mi closet</Tab>
+              <Tab active={tab === "favs"} onClick={() => setTab("favs")}><Heart className="h-3.5 w-3.5" /> Favoritos</Tab>
+              <Tab active={tab === "hist"} onClick={() => setTab("hist")}><Clock className="h-3.5 w-3.5" /> Historial</Tab>
             </div>
-          ) : (
-            <div className="mt-4 grid grid-cols-2 gap-3">
-              {list.map(p => (
-                <Link to="/product/$id" params={{ id: p.id }} key={p.id} className="block overflow-hidden rounded-2xl bg-muted">
-                  <div className="relative aspect-square overflow-hidden">
-                    <img src={p.image} alt={p.title} className="h-full w-full object-cover" />
-                    <span className="absolute left-2 top-2 rounded-full bg-white/95 px-2 py-0.5 text-[10px] font-bold text-ink">Activo</span>
-                  </div>
-                  <div className="px-2 py-2">
-                    <p className="truncate text-xs font-semibold text-ink">{p.title}</p>
-                    <p className="text-sm font-bold text-ink">{p.price} €</p>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          )}
+            {list.length === 0 ? (
+              <div className="grid place-items-center py-12 text-center">
+                <p className="text-sm font-semibold text-ink">{tab === "favs" ? "Aún no tienes favoritos" : "Nada por aquí"}</p>
+                <Link to="/search" className="mt-3 rounded-full bg-ink px-4 py-2 text-xs font-bold text-white">Explorar</Link>
+              </div>
+            ) : (
+              <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 md:gap-4">
+                {list.map(p => (
+                  <Link to="/product/$id" params={{ id: p.id }} key={p.id} className="block overflow-hidden rounded-2xl border border-border bg-card transition hover:border-brand/50">
+                    <div className="relative aspect-square overflow-hidden bg-muted">
+                      <img src={p.image} alt={p.title} className="h-full w-full object-cover" />
+                      <span className="absolute left-2 top-2 rounded-full bg-white/95 px-2 py-0.5 text-[10px] font-bold text-ink">Activo</span>
+                    </div>
+                    <div className="px-2 py-2">
+                      <p className="truncate text-xs font-semibold text-ink">{p.title}</p>
+                      <p className="text-sm font-bold text-ink">{p.price} €</p>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         <BottomNav />
       </div>
-    </MobileShell>
+    </AppShell>
   );
 }
 

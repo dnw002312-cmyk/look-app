@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMemo, useRef, useState } from "react";
-import { MobileShell } from "@/components/MobileShell";
+import { AppShell } from "@/components/AppShell";
 import { BottomNav } from "@/components/BottomNav";
 import { ProductCard } from "@/components/ProductCard";
 import { categories } from "@/lib/mock-data";
@@ -68,41 +68,43 @@ function SearchPage() {
   const activeCount = Object.values(active).reduce((n, v) => n + v.length, 0) + (price < 200 ? 1 : 0);
 
   return (
-    <MobileShell>
+    <AppShell>
       <div className="flex min-h-[100dvh] flex-col bg-background">
-        <header className="sticky top-0 z-30 bg-background/95 px-5 pb-3 pt-5 backdrop-blur-xl">
-          <h1 className="text-2xl font-extrabold tracking-[-0.02em] text-ink">Explorar</h1>
-          <div className="mt-3 flex items-center gap-2">
-            <div className="flex flex-1 items-center gap-2 rounded-full bg-muted px-4 py-3">
-              <SearchIcon className="h-4 w-4 text-muted-foreground" />
-              <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Marca, prenda, estilo..." className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground" />
-              {q && <button onClick={() => setQ("")}><X className="h-4 w-4 text-muted-foreground" /></button>}
+        <header className="sticky top-0 z-30 border-b border-border bg-background/95 px-5 pb-3 pt-5 backdrop-blur-xl md:px-8 md:pt-6">
+          <div className="mx-auto max-w-6xl">
+            <h1 className="text-2xl font-extrabold tracking-[-0.02em] text-ink md:text-3xl">Explorar</h1>
+            <div className="mt-3 flex items-center gap-2">
+              <div className="flex flex-1 items-center gap-2 rounded-full bg-muted px-4 py-3">
+                <SearchIcon className="h-4 w-4 text-muted-foreground" />
+                <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Marca, prenda, estilo..." className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground" />
+                {q && <button onClick={() => setQ("")}><X className="h-4 w-4 text-muted-foreground" /></button>}
+              </div>
+              <button onClick={() => fileRef.current?.click()} className="grid h-12 w-12 place-items-center rounded-full bg-brand text-ink" aria-label="Buscar por foto">
+                <Camera className="h-4 w-4" />
+              </button>
+              <button onClick={() => setOpen(true)} className="relative grid h-12 w-12 place-items-center rounded-full bg-ink text-white" aria-label="Filtros">
+                <SlidersHorizontal className="h-4 w-4" />
+                {activeCount > 0 && <span className="absolute -right-1 -top-1 grid h-5 w-5 place-items-center rounded-full bg-brand text-[10px] font-bold text-ink">{activeCount}</span>}
+              </button>
+              <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) onPickPhoto(f); e.currentTarget.value = ""; }} />
             </div>
-            <button onClick={() => fileRef.current?.click()} className="grid h-12 w-12 place-items-center rounded-full bg-brand text-ink" aria-label="Buscar por foto">
-              <Camera className="h-4 w-4" />
-            </button>
-            <button onClick={() => setOpen(true)} className="relative grid h-12 w-12 place-items-center rounded-full bg-ink text-white">
-              <SlidersHorizontal className="h-4 w-4" />
-              {activeCount > 0 && <span className="absolute -right-1 -top-1 grid h-5 w-5 place-items-center rounded-full bg-brand text-[10px] font-bold text-ink">{activeCount}</span>}
-            </button>
-            <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) onPickPhoto(f); e.currentTarget.value = ""; }} />
-          </div>
 
-          <div className="no-scrollbar mt-3 flex gap-2 overflow-x-auto">
-            {cat && (
-              <button onClick={clearCat} className="flex shrink-0 items-center gap-1.5 rounded-full bg-ink px-3 py-1.5 text-xs font-semibold text-white">
-                {cat} <X className="h-3 w-3" />
-              </button>
-            )}
-            {categories.filter(c => c.id !== cat).map(c => (
-              <button key={c.id} onClick={() => setCat(c.id)} className="flex shrink-0 items-center gap-1 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-semibold text-ink">
-                <span>{c.emoji}</span> {c.label}
-              </button>
-            ))}
+            <div className="no-scrollbar mt-3 flex gap-2 overflow-x-auto">
+              {cat && (
+                <button onClick={clearCat} className="flex shrink-0 items-center gap-1.5 rounded-full bg-ink px-3 py-1.5 text-xs font-semibold text-white">
+                  {cat} <X className="h-3 w-3" />
+                </button>
+              )}
+              {categories.filter(c => c.id !== cat).map(c => (
+                <button key={c.id} onClick={() => setCat(c.id)} className="flex shrink-0 items-center gap-1 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-semibold text-ink">
+                  <span>{c.emoji}</span> {c.label}
+                </button>
+              ))}
+            </div>
           </div>
         </header>
 
-        <main className="px-5 pb-4">
+        <main className="mx-auto w-full max-w-6xl flex-1 px-5 pb-4 pt-4 md:px-8">
           {photo && (
             <div className="mb-3 flex items-center gap-3 rounded-2xl border border-border bg-brand-soft p-3">
               <img src={photo} alt="" className="h-14 w-14 rounded-xl object-cover" />
@@ -123,16 +125,16 @@ function SearchPage() {
               <p className="text-xs text-muted-foreground">Prueba con otros filtros o categoría</p>
             </div>
           ) : (
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 md:gap-4">
               {filtered.map(p => <ProductCard key={p.id} product={p} />)}
             </div>
           )}
         </main>
 
         {open && (
-          <div className="fixed inset-0 z-50 flex items-end justify-center bg-ink/40 backdrop-blur-sm" onClick={() => setOpen(false)}>
-            <div className="w-full max-w-[420px] rounded-t-[28px] bg-background p-6" onClick={(e) => e.stopPropagation()}>
-              <div className="mx-auto mb-4 h-1.5 w-12 rounded-full bg-muted" />
+          <div className="fixed inset-0 z-50 flex items-end justify-center bg-ink/40 backdrop-blur-sm md:items-center" onClick={() => setOpen(false)}>
+            <div className="w-full max-w-[420px] rounded-t-[28px] bg-background p-6 shadow-2xl md:max-w-lg md:rounded-3xl" onClick={(e) => e.stopPropagation()}>
+              <div className="mx-auto mb-4 h-1.5 w-12 rounded-full bg-muted md:hidden" />
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-extrabold text-ink">Filtros avanzados</h3>
                 <button onClick={() => setOpen(false)} className="grid h-9 w-9 place-items-center rounded-full bg-muted">
@@ -169,9 +171,8 @@ function SearchPage() {
             </div>
           </div>
         )}
-
         <BottomNav />
       </div>
-    </MobileShell>
+    </AppShell>
   );
 }

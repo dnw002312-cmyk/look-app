@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useRef, useState } from "react";
-import { MobileShell } from "@/components/MobileShell";
+import { AppShell } from "@/components/AppShell";
 import { BottomNav } from "@/components/BottomNav";
 import { useStore } from "@/lib/store";
 import { Camera, X, Check } from "lucide-react";
@@ -58,20 +58,22 @@ function Sell() {
   };
 
   return (
-    <MobileShell>
+    <AppShell>
       <div className="flex min-h-[100dvh] flex-col bg-background">
-        <header className="flex items-center justify-between px-5 pb-4 pt-6">
-          <button onClick={() => nav({ to: "/home" })} className="grid h-10 w-10 place-items-center rounded-full bg-muted">
-            <X className="h-4 w-4 text-ink" />
-          </button>
-          <h1 className="text-base font-extrabold text-ink">Nueva publicación</h1>
-          <span className="w-10" />
+        <header className="flex items-center justify-between border-b border-border px-5 pb-4 pt-6 md:px-8 md:pt-8">
+          <div className="mx-auto flex w-full max-w-3xl items-center justify-between">
+            <button onClick={() => nav({ to: "/home" })} className="grid h-10 w-10 place-items-center rounded-full bg-muted hover:bg-muted/70">
+              <X className="h-4 w-4 text-ink" />
+            </button>
+            <h1 className="text-base font-extrabold text-ink md:text-lg">Nueva publicación</h1>
+            <span className="w-10" />
+          </div>
         </header>
 
-        <main className="space-y-5 px-5 pb-32">
+        <main className="mx-auto w-full max-w-3xl flex-1 space-y-5 px-5 pb-32 pt-5 md:px-8">
           <div>
             <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Fotos {photos.length}/6</p>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-3 gap-2 md:grid-cols-6">
               {photos.map((p, i) => (
                 <div key={i} className="relative aspect-square overflow-hidden rounded-2xl bg-muted">
                   <img src={p} className="h-full w-full object-cover" alt="" />
@@ -82,7 +84,7 @@ function Sell() {
                 </div>
               ))}
               {photos.length < 6 && (
-                <button onClick={() => fileRef.current?.click()} className="grid aspect-square place-items-center rounded-2xl border-2 border-dashed border-border bg-muted/50 text-muted-foreground transition active:scale-95">
+                <button onClick={() => fileRef.current?.click()} className="grid aspect-square place-items-center rounded-2xl border-2 border-dashed border-border bg-muted/50 text-muted-foreground transition active:scale-95 hover:border-brand">
                   <div className="flex flex-col items-center gap-1">
                     <Camera className="h-5 w-5" />
                     <span className="text-[10px] font-semibold">Añadir</span>
@@ -113,15 +115,17 @@ function Sell() {
           {err && <p className="rounded-2xl bg-red-50 px-4 py-3 text-sm font-semibold text-red-600">{err}</p>}
         </main>
 
-        <div className="fixed bottom-0 left-1/2 w-full max-w-[420px] -translate-x-1/2 border-t border-border bg-background/95 p-4 pb-20 backdrop-blur-xl">
-          <button onClick={publish} disabled={done} className="w-full rounded-full bg-ink py-4 text-base font-semibold text-white shadow-lg shadow-ink/20 transition active:scale-[0.98] disabled:opacity-60">
-            {done ? <span className="inline-flex items-center gap-2"><Check className="h-4 w-4" /> ¡Publicado!</span> : "Publicar artículo"}
-          </button>
+        <div className="sticky bottom-0 z-10 border-t border-border bg-background/95 p-4 backdrop-blur-xl">
+          <div className="mx-auto max-w-3xl">
+            <button onClick={publish} disabled={done} className="w-full rounded-full bg-ink py-4 text-base font-semibold text-white shadow-lg shadow-ink/20 transition active:scale-[0.98] disabled:opacity-60">
+              {done ? <span className="inline-flex items-center gap-2"><Check className="h-4 w-4" /> ¡Publicado!</span> : "Publicar artículo"}
+            </button>
+          </div>
         </div>
 
         <BottomNav />
       </div>
-    </MobileShell>
+    </AppShell>
   );
 }
 

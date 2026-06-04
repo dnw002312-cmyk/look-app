@@ -83,8 +83,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:card", content: "summary" },
       { name: "twitter:title", content: "LOOK — Compra. Vende. Reutiliza." },
       { name: "twitter:description", content: "LOOK es el marketplace de ropa de segunda mano donde compras, vendes y reutilizas moda desde un mismo perfil." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/761dcc4c-4ce9-4ad7-ad50-2a9fd41d3bfc/id-preview-f2dc0019--2eaaadd2-ffee-42d9-8d68-038ad8895eba.lovable.app-1779409929845.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/761dcc4c-4ce9-4ad7-ad50-2a9fd41d3bfc/id-preview-f2dc0019--2eaaadd2-ffee-42d9-8d68-038ad8895eba.lovable.app-1779409929845.png" },
+      { property: "og:image", content: "https://iywcubpxlftlrbevjdxg.supabase.co/storage/v1/object/public/assets/og-look.png" },
+      { name: "twitter:image", content: "https://iywcubpxlftlrbevjdxg.supabase.co/storage/v1/object/public/assets/og-look.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },

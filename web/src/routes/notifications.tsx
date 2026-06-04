@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { MobileShell } from "@/components/MobileShell";
+import { AppShell } from "@/components/AppShell";
 import { ChevronLeft, Heart, UserPlus, MessageCircle, Package, Tag } from "lucide-react";
 
 export const Route = createFileRoute("/notifications")({ component: Notifications });
@@ -16,30 +16,32 @@ const NOTIFS = [
 function Notifications() {
   const nav = useNavigate();
   return (
-    <MobileShell>
+    <AppShell>
       <div className="flex min-h-[100dvh] flex-col bg-background">
-        <header className="flex items-center gap-3 px-5 pb-2 pt-6">
+        <header className="flex items-center gap-3 px-5 pb-2 pt-6 md:px-8 md:pt-8">
           <button onClick={() => nav({ to: "/home" })} className="grid h-10 w-10 place-items-center rounded-full bg-muted">
             <ChevronLeft className="h-5 w-5 text-ink" />
           </button>
-          <h1 className="text-xl font-extrabold tracking-[-0.02em] text-ink">Notificaciones</h1>
+          <h1 className="text-xl font-extrabold tracking-[-0.02em] text-ink md:text-2xl">Notificaciones</h1>
         </header>
 
-        <main className="space-y-2 px-3 py-4">
-          {NOTIFS.map((n) => (
-            <Link key={n.id} to="/home" className="flex items-start gap-3 rounded-2xl bg-card p-3 transition active:scale-[0.99]">
-              <div className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl ${n.color}`}>
-                <n.icon className="h-5 w-5" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-semibold text-ink">{n.title}</p>
-                <p className="truncate text-xs text-muted-foreground">{n.sub}</p>
-                <p className="mt-0.5 text-[10px] text-muted-foreground/70">{n.time}</p>
-              </div>
-            </Link>
-          ))}
+        <main className="space-y-2 px-3 py-4 md:px-8">
+          <div className="mx-auto w-full max-w-3xl space-y-2">
+            {NOTIFS.map((n) => (
+              <Link key={n.id} to="/home" className="flex items-start gap-3 rounded-2xl border border-border bg-card p-3 transition hover:border-brand/40">
+                <div className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl ${n.color}`}>
+                  <n.icon className="h-5 w-5" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-semibold text-ink">{n.title}</p>
+                  <p className="truncate text-xs text-muted-foreground">{n.sub}</p>
+                  <p className="mt-0.5 text-[10px] text-muted-foreground/70">{n.time}</p>
+                </div>
+              </Link>
+            ))}
+          </div>
         </main>
       </div>
-    </MobileShell>
+    </AppShell>
   );
 }

@@ -69,6 +69,8 @@
   --border: oklch(0.92 0.008 240);
   --input: oklch(0.94 0.008 240);
   --ring: oklch(0.74 0.09 153);
+
+  --sidebar-w: 260px;
 }
 
 .dark { --background: oklch(0.18 0.04 240); --foreground: oklch(0.98 0.005 240); }
@@ -79,25 +81,18 @@
   body { background-color: var(--color-background); color: var(--color-foreground); }
 }
 
-/* Mobile frame for desktop preview */
-.mobile-frame {
+/* Desktop app frame: full-width on lg+, centered card-like on smaller widths.
+   Mantiene la misma identidad visual que la versión móvil (centrado + radio + sombra) pero
+   con un ancho mayor para usar como web de escritorio. */
+.app-frame {
   width: 100%;
-  max-width: 420px;
+  max-width: 100%;
   min-height: 100dvh;
-  margin: 0 auto;
   background: var(--color-background);
   position: relative;
   overflow-x: hidden;
 }
 @media (min-width: 640px) {
-  .mobile-frame {
-    margin-top: 24px;
-    margin-bottom: 24px;
-    min-height: calc(100dvh - 48px);
-    border-radius: 40px;
-    box-shadow: 0 30px 80px -20px oklch(0.22 0.05 250 / 0.25), 0 0 0 10px oklch(0.22 0.05 250), 0 0 0 11px oklch(0.3 0.04 250);
-    overflow: hidden;
-  }
   body { background: linear-gradient(135deg, oklch(0.95 0.04 153) 0%, oklch(0.93 0.02 240) 100%); }
 }
 

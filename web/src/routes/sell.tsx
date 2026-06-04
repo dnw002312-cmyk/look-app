@@ -97,7 +97,7 @@ function Sell() {
 
           <Field label="Nombre de la prenda" placeholder="Ej. Chaqueta vintage Levi's" value={form.title} onChange={(v) => upd("title", v)} />
           <div className="grid grid-cols-2 gap-3">
-            <Field label="Precio (€)" type="number" placeholder="35" value={form.price} onChange={(v) => upd("price", v)} />
+            <Field label="Precio (₡)" type="number" placeholder="35" value={form.price} onChange={(v) => upd("price", v)} />
             <Field label="Marca" placeholder="Levi's" value={form.brand} onChange={(v) => upd("brand", v)} />
           </div>
           <Select label="Categoría" opts={CATS} value={form.category} onChange={(v) => upd("category", v)} />

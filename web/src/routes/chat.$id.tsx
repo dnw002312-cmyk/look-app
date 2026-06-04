@@ -83,7 +83,7 @@ function ChatRoom() {
           <img src={product.image} className="h-12 w-12 rounded-xl object-cover" alt="" />
           <div className="min-w-0 flex-1">
             <p className="truncate text-xs font-semibold text-ink">{product.title}</p>
-            <p className="text-[10px] text-muted-foreground">Talla {product.size} · {product.price}€</p>
+            <p className="text-[10px] text-muted-foreground">Talla {product.size} · ₡{product.price.toLocaleString()}</p>
           </div>
           <button className="rounded-full bg-ink px-3 py-1.5 text-[10px] font-bold text-white">Comprar</button>
         </div>

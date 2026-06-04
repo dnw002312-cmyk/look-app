@@ -1,6 +1,15 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 
+String _fmt(int n) {
+  final s = n.toString();
+  final b = <String>[];
+  for (int i = s.length; i > 0; i -= 3) {
+    b.insert(0, s.substring(i > 3 ? i - 3 : 0, i));
+  }
+  return b.join('.');
+}
+
 class AiScreen extends StatefulWidget {
   const AiScreen({super.key});
 
@@ -356,7 +365,7 @@ class _OutfitCard extends StatelessWidget {
                         ],
                       ),
                     ),
-                    Text('₡${outfit.totalPrice}', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Colors.white)),
+                    Text('₡${_fmt(outfit.totalPrice)}', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Colors.white)),
                   ],
                 ),
                 const SizedBox(height: 10),
@@ -399,7 +408,7 @@ class _OutfitCard extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Flexible(child: Text(item.name, style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700), overflow: TextOverflow.ellipsis)),
-                          Text('₡${item.price}', style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800)),
+                          Text('₡${_fmt(item.price)}', style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800)),
                         ],
                       ),
                       const SizedBox(height: 2),

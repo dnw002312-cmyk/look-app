@@ -44,7 +44,7 @@ function Product() {
           <div className="md:pt-2">
             <p className="text-xs font-semibold uppercase tracking-wider text-brand">{product.brand}</p>
             <h1 className="mt-1 text-2xl font-extrabold tracking-[-0.02em] text-ink md:text-3xl">{product.title}</h1>
-            <p className="mt-2 text-3xl font-extrabold text-ink md:text-4xl">{product.price} €</p>
+            <p className="mt-2 text-3xl font-extrabold text-ink md:text-4xl">₡{product.price.toLocaleString()}</p>
 
             <div className="mt-5 grid grid-cols-3 gap-2">
               <Spec label="Talla" value={product.size} />

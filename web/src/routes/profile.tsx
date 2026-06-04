@@ -98,7 +98,7 @@ function Profile() {
                     </div>
                     <div className="px-2 py-2">
                       <p className="truncate text-xs font-semibold text-ink">{p.title}</p>
-                      <p className="text-sm font-bold text-ink">{p.price} €</p>
+                      <p className="text-sm font-bold text-ink">₡{p.price.toLocaleString()}</p>
                     </div>
                   </Link>
                 ))}

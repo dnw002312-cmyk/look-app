@@ -125,7 +125,7 @@ export const aiOutfits = createServerFn({ method: "POST" })
 Responde con este JSON exacto:
 {"outfits":[{"title":"Nombre del look","description":"1 frase descriptiva","items":[{"type":"Top|Bottom|Shoes|Accessory|Outerwear","name":"nombre prenda","brand":"marca real second-hand plausible","price":25,"color":"color","why":"por qué encaja"}],"totalPrice":120,"tags":["tag1","tag2"]}]}
 
-Marcas plausibles: Levi's, COS, Zara, Carhartt, Vintage, & Other Stories, Mango, New Balance, Nike, Adidas, Stüssy, Patagonia, Massimo Dutti, Bershka. Precios realistas de segunda mano (8-80€ por pieza). 3-4 items por outfit.`,
+Marcas plausibles: Levi's, COS, Zara, Carhartt, Vintage, & Other Stories, Mango, New Balance, Nike, Adidas, Stüssy, Patagonia, Massimo Dutti, Bershka. Precios realistas de segunda mano (₡3,000 - ₡60,000 por pieza). 3-4 items por outfit.`,
     };
     const raw = await callGemini([system, user], { json: true });
     try {

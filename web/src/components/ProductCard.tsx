@@ -10,7 +10,7 @@ export function ProductCard({ product }: { product: Product }) {
     <Link
       to="/product/$id"
       params={{ id: product.id }}
-      className="group block overflow-hidden rounded-2xl bg-card transition active:scale-[0.98]"
+      className="group block min-w-0 overflow-hidden rounded-2xl bg-card transition active:scale-[0.98]"
     >
       <div className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-muted">
         <img src={product.image} alt={product.title} loading="lazy" className="h-full w-full object-cover transition group-hover:scale-105" />
@@ -28,11 +28,12 @@ export function ProductCard({ product }: { product: Product }) {
       <div className="px-1 pt-2">
         <p className="truncate text-xs font-medium text-muted-foreground">{product.brand}</p>
         <p className="truncate text-sm font-semibold text-ink">{product.title}</p>
-        <div className="mt-1 flex items-center justify-between">
-          <span className="text-sm font-bold text-ink">{product.price} €</span>
-          <span className="text-[10px] text-muted-foreground">@{product.seller.name}</span>
+        <div className="mt-1 flex items-center justify-between gap-1.5 min-w-0">
+          <span className="shrink-0 text-sm font-bold text-ink">₡{product.price.toLocaleString()}</span>
+          <span className="min-w-0 truncate text-[10px] text-muted-foreground">@{product.seller.name}</span>
         </div>
       </div>
     </Link>
   );
 }
+

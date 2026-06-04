@@ -36,7 +36,7 @@ function Cart() {
                     <p className="text-sm font-bold text-ink">{it.title}</p>
                     <p className="text-xs text-muted-foreground">Talla {it.size} · {it.color}</p>
                     <div className="mt-auto flex items-center justify-between">
-                      <p className="text-base font-extrabold text-ink">{(it.price * it.qty).toFixed(2)} €</p>
+                      <p className="text-base font-extrabold text-ink">₡{(it.price * it.qty).toLocaleString()}</p>
                       <button onClick={() => setItems(items.filter((_, x) => x !== idx))} className="text-muted-foreground hover:text-destructive">
                         <Trash2 className="h-4 w-4" />
                       </button>
@@ -62,14 +62,14 @@ function Cart() {
               {/* Summary */}
               <div className="rounded-3xl bg-muted p-4">
                 <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Resumen</p>
-                <Row label="Subtotal" value={`${subtotal.toFixed(2)} €`} />
-                <Row label="Envío" value={`${shipping.toFixed(2)} €`} />
+                <Row label="Subtotal" value={`₡${subtotal.toLocaleString()}`} />
+                <Row label="Envío" value={`₡${shipping.toLocaleString()}`} />
                 <div className="my-3 h-px bg-border" />
-                <Row label="Total" value={`${total.toFixed(2)} €`} bold />
+                <Row label="Total" value={`₡${total.toLocaleString()}`} bold />
               </div>
               {/* Desktop checkout button */}
               <button className="hidden w-full rounded-full bg-ink py-4 text-base font-semibold text-white shadow-lg shadow-ink/30 hover:bg-ink/90 lg:block">
-                Finalizar compra · {total.toFixed(2)} €
+                Finalizar compra · ₡{total.toLocaleString()}
               </button>
             </aside>
           </div>
@@ -78,7 +78,7 @@ function Cart() {
         {/* Sticky checkout (mobile) */}
         <div className="sticky bottom-0 z-10 mt-auto border-t border-border bg-background/95 p-4 backdrop-blur-xl lg:hidden">
           <button className="w-full rounded-full bg-ink py-4 text-base font-semibold text-white shadow-lg shadow-ink/30">
-            Finalizar compra · {total.toFixed(2)} €
+            Finalizar compra · ₡{total.toLocaleString()}
           </button>
         </div>
       </div>

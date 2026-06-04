@@ -94,9 +94,9 @@ Genera EXACTAMENTE 4 outfits completos para el vibe: "${vibe}".
 Estilos del usuario: ${(styles || []).join(", ") || "variado"}.
 Tallas: top ${sizes?.top || "M"}, bottom ${sizes?.bottom || "M"}, shoes ${sizes?.shoes || "40"}.
 Catálogo disponible: ${JSON.stringify(catalog)}
-IMPORTANTE: Para cada outfit usa NOMBRES de prendas y marcas CREÍBLES y REALISTAS de segunda mano (Zara, Mango, Levi's, H&M, Nike, COS, Massimo Dutti, vintage, etc). Precios razonables de segunda mano (8-80€ por pieza). 3-4 items por outfit.
+IMPORTANTE: Para cada outfit usa NOMBRES de prendas y marcas CREÍBLES y REALISTAS de segunda mano (Zara, Mango, Levi's, H&M, Nike, COS, Massimo Dutti, vintage, etc). Precios EN COLONES COSTARRICENSES (₡): entre ₡3,000 y ₡60,000 por pieza. 3-4 items por outfit.
 Responde SOLO con JSON válido (sin markdown, sin \`\`\`):
-{"outfits":[{"title":"Nombre creativo del look","description":"1 frase descriptiva","items":[{"type":"Top|Bottom|Shoes|Accesorio|Outerwear","name":"Nombre prenda","brand":"Marca","price":25,"color":"Color","why":"Por qué encaja en este look"}],"totalPrice":120,"tags":["estilo1","estilo2"]}]}`;
+{"outfits":[{"title":"Nombre creativo del look","description":"1 frase descriptiva","items":[{"type":"Top|Bottom|Shoes|Accesorio|Outerwear","name":"Nombre prenda","brand":"Marca","price":15000,"color":"Color","why":"Por qué encaja en este look"}],"totalPrice":60000,"tags":["estilo1","estilo2"]}]}`;
 
     const geminiRes = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiKey}`,

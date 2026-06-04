@@ -144,7 +144,7 @@ function SearchPage() {
 
               <div className="mt-5 max-h-[60vh] space-y-5 overflow-y-auto">
                 <div>
-                  <p className="mb-2 text-sm font-semibold text-ink">Precio máx: {price} €</p>
+                  <p className="mb-2 text-sm font-semibold text-ink">Precio máx: ₡{price.toLocaleString()}</p>
                   <input type="range" min={5} max={200} value={price} onChange={(e) => setPrice(+e.target.value)} className="w-full accent-[color:var(--brand)]" />
                 </div>
                 {filterGroups.map(g => (

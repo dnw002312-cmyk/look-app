@@ -9,7 +9,7 @@ const NOTIFS = [
   { id: "2", icon: MessageCircle, color: "text-brand bg-brand-soft", title: "Nuevo mensaje de @marco_st", sub: "Te mando foto del estado real", time: "Hace 1 h" },
   { id: "3", icon: Package, color: "text-blue-600 bg-blue-50", title: "Tu pedido va en camino", sub: "Llegada estimada: martes 28", time: "Hace 3 h" },
   { id: "4", icon: UserPlus, color: "text-ink bg-muted", title: "@anabel.co empezó a seguirte", sub: "Tienes 1 nueva seguidora", time: "Ayer" },
-  { id: "5", icon: Tag, color: "text-emerald-600 bg-emerald-50", title: "¡Has vendido una prenda!", sub: "Blazer estructurado · 32€", time: "Ayer" },
+  { id: "5", icon: Tag, color: "text-emerald-600 bg-emerald-50", title: "¡Has vendido una prenda!", sub: "Blazer estructurado · ₡32", time: "Ayer" },
   { id: "6", icon: Heart, color: "text-rose-500 bg-rose-50", title: "12 personas guardaron tu prenda", sub: "Hoodie oversize verde", time: "Hace 2 días" },
 ];
 

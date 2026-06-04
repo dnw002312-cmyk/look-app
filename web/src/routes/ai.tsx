@@ -117,7 +117,7 @@ function AIPage() {
                       <span className="inline-flex items-center gap-1 rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">
                         <Sparkles className="h-3 w-3" /> Look {i + 1}
                       </span>
-                      <span className="text-sm font-extrabold">{o.totalPrice}€ total</span>
+                      <span className="text-sm font-extrabold">₡{o.totalPrice.toLocaleString()} total</span>
                     </div>
                     <h3 className="mt-2 text-lg font-extrabold leading-tight">{o.title}</h3>
                     <p className="mt-1 text-xs text-white/70">{o.description}</p>
@@ -141,7 +141,7 @@ function AIPage() {
                           <div className="min-w-0 flex-1">
                             <div className="flex items-baseline justify-between gap-2">
                               <p className="truncate text-sm font-bold text-ink">{it.name}</p>
-                              <p className="shrink-0 text-sm font-extrabold text-ink">{it.price}€</p>
+                              <p className="shrink-0 text-sm font-extrabold text-ink">₡{it.price.toLocaleString()}</p>
                             </div>
                             <p className="text-[10px] uppercase tracking-wider text-muted-foreground">{it.brand} · {it.color} · {it.type}</p>
                             <p className="mt-1 text-xs italic text-muted-foreground">"{it.why}"</p>

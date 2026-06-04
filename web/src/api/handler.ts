@@ -71,6 +71,64 @@ export async function handleApiRequest(
     return json({ token: String(safeUser.id), user: safeUser });
   }
 
+  // AI — Gemini Chat (seller persona reply, no auth required)
+  if (resource === "ai" && resourceId === "chat" && method === "POST") {
+    const { sellerName, productTitle, history } = await readBody(request);
+    if (!sellerName || !productTitle) {
+      return json({ error: 'Se requieren "sellerName" y "productTitle"' }, 400);
+    }
+
+    const geminiKey = env.GEMINI_API_KEY || "";
+    if (!geminiKey || geminiKey === "pon-tu-api-key-aqui") {
+      return json({ error: "API key de Gemini no configurada. Usa wrangler secret put GEMINI_API_KEY." }, 400);
+    }
+
+    const model = "gemini-2.5-flash-lite";
+    const safeHistory: { from: "me" | "them"; text: string }[] = Array.isArray(history) ? history.slice(-20) : [];
+
+    const systemText = `Eres @${sellerName}, un vendedor real en LOOK, un marketplace costarricense de ropa de segunda mano. Estás chateando con un comprador interesado en "${productTitle}". Reglas:
+- Responde de forma natural, cercana, juvenil, con 1-2 emojis como máximo.
+- Mensajes MUY cortos (máx 2 frases, idealmente 1).
+- NO inventes precios distintos al publicado.
+- Si preguntan por estado, talla, color, marca, envío, responde con detalles plausibles y honestos.
+- Si quieren regatear, responde con amabilidad y baja hasta un 10% como máximo.
+- Si preguntan por envíos, di que se hacen por Correos de Costa Rica o envío personal en GAM, pago contra entrega o SINPE.
+- Habla SIEMPRE en español de Costa Rica (puedes usar "pura vida", "mae", "tuanis" ocasionalmente, con moderación).
+- NO uses markdown, NO uses listas, NO uses asteriscos. Solo texto plano.`;
+
+    const contents = [
+      { role: "user" as const, parts: [{ text: systemText }] },
+      { role: "model" as const, parts: [{ text: "¡Listo! Estoy listo para chatear." }] },
+      ...safeHistory.map((m) => ({
+        role: m.from === "me" ? ("user" as const) : ("model" as const),
+        parts: [{ text: m.text }],
+      })),
+    ];
+
+    const geminiRes = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiKey}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents,
+          generationConfig: { temperature: 0.85, maxOutputTokens: 256 },
+        }),
+      },
+    );
+
+    if (!geminiRes.ok) {
+      const errText = await geminiRes.text();
+      return json({ error: `Gemini API error ${geminiRes.status}: ${errText.slice(0, 200)}` }, 502);
+    }
+
+    const geminiData = await geminiRes.json();
+    const reply = geminiData?.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!reply) return json({ error: "Respuesta vacía de Gemini" }, 502);
+
+    return json({ reply: reply.trim() });
+  }
+
   // AI — Gemini Outfit Generator (no auth required)
   if (resource === "ai" && resourceId === "outfits" && method === "POST") {
     const { vibe, styles, sizes } = await readBody(request);

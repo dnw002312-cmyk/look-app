@@ -68,7 +68,7 @@ function Product() {
                   </p>
                 </div>
               </Link>
-              <Link to="/chat/$id" params={{ id: "1" }} className="grid h-10 w-10 place-items-center rounded-full bg-muted">
+              <Link to="/chat/$id" params={{ id: product.seller.name }} className="grid h-10 w-10 place-items-center rounded-full bg-muted" aria-label="Contactar vendedor">
                 <MessageCircle className="h-4 w-4 text-ink" />
               </Link>
             </div>
@@ -88,6 +88,14 @@ function Product() {
         {/* Sticky buy bar (mobile) */}
         <div className="sticky bottom-0 z-10 mt-auto border-t border-border bg-background/95 p-4 backdrop-blur-xl md:hidden">
           <div className="flex gap-2">
+            <Link
+              to="/chat/$id"
+              params={{ id: product.seller.name }}
+              className="grid h-12 w-12 shrink-0 place-items-center rounded-full border-2 border-ink"
+              aria-label="Contactar vendedor"
+            >
+              <MessageCircle className="h-4 w-4 text-ink" />
+            </Link>
             <Link to="/cart" className="flex-1 rounded-full border-2 border-ink py-3.5 text-center text-sm font-semibold text-ink">
               Añadir al carrito
             </Link>

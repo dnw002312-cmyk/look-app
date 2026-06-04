@@ -194,4 +194,19 @@ export const api = {
         body: JSON.stringify({ text }),
       }),
   },
+
+  ai: {
+    outfits: (params: {
+      vibe: string;
+      styles?: string[];
+      sizes?: { top?: string; bottom?: string; shoes?: string };
+    }) =>
+      request<{ outfits: Outfit[] }>("/api/ai/outfits", {
+        method: "POST",
+        body: JSON.stringify(params),
+      }),
+  },
 };
+
+type OutfitItem = { type: string; name: string; brand: string; price: number; color: string; why: string };
+type Outfit = { title: string; description: string; items: OutfitItem[]; totalPrice: number; tags: string[] };

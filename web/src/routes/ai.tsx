@@ -1,9 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { useServerFn } from "@tanstack/react-start";
 import { AppShell } from "@/components/AppShell";
 import { BottomNav } from "@/components/BottomNav";
-import { aiOutfits } from "@/lib/ai.functions";
 import { Sparkles, Loader2, Wand2, Shirt, Heart, ShoppingBag } from "lucide-react";
 import { useFavorites } from "@/lib/favorites";
 
@@ -22,7 +20,6 @@ type OutfitItem = { type: string; name: string; brand: string; price: number; co
 type Outfit = { title: string; description: string; items: OutfitItem[]; totalPrice: number; tags: string[] };
 
 function AIPage() {
-  const gen = useServerFn(aiOutfits);
   const [loading, setLoading] = useState(false);
   const [outfits, setOutfits] = useState<Outfit[]>([]);
   const [activeVibe, setActiveVibe] = useState<string | null>(null);
@@ -32,7 +29,20 @@ function AIPage() {
   const handleGenerate = async (vibe: string, label: string) => {
     setLoading(true); setError(null); setActiveVibe(vibe);
     try {
-      const r = await gen({ data: { vibe: label, styles: ["minimalista", "vintage"], sizes: { top: "M", bottom: "M", shoes: "40" } } });
+      const res = await fetch("/api/ai/outfits", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          vibe: label,
+          styles: ["minimalista", "vintage"],
+          sizes: { top: "M", bottom: "M", shoes: "40" },
+        }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: "Error de red" }));
+        throw new Error(err.error || "Error de red");
+      }
+      const r = await res.json();
       setOutfits(r.outfits ?? []);
     } catch (e: any) {
       setError(e?.message ?? "No se pudo generar el look");

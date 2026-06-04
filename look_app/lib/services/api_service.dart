@@ -2,7 +2,10 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  static const String _baseUrl = 'http://localhost:3001/api';
+  static const String _baseUrl = String.fromEnvironment(
+    'LOOK_API_URL',
+    defaultValue: 'http://localhost:3001/api',
+  );
   static String get base => _baseUrl;
   static String? _token;
 
@@ -172,5 +175,31 @@ class ApiService {
       },
       (j) => j as Map<String, dynamic>,
     );
+  }
+
+  // AI - Chat reply (seller persona). No auth required.
+  static Future<String> getAiChatReply({
+    required String sellerName,
+    required String productTitle,
+    required List<Map<String, String>> history,
+  }) async {
+    final res = await http.post(
+      Uri.parse('$base/ai/chat'),
+      headers: _headers,
+      body: jsonEncode({
+        'sellerName': sellerName,
+        'productTitle': productTitle,
+        'history': history,
+      }),
+    );
+    if (res.statusCode >= 400) {
+      throw Exception(_errorMsg(res));
+    }
+    final data = jsonDecode(res.body) as Map<String, dynamic>;
+    final reply = data['reply'];
+    if (reply is! String || reply.trim().isEmpty) {
+      throw Exception('Respuesta IA inválida');
+    }
+    return reply.trim();
   }
 }

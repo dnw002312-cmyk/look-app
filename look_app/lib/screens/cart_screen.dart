@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/product.dart';
 import '../providers/cart_provider.dart';
+import '../utils/currency.dart';
 
 class CartScreen extends StatelessWidget {
   const CartScreen({super.key});
@@ -100,7 +101,7 @@ class CartScreen extends StatelessWidget {
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              '\u20A1${item.effectivePrice.toStringAsFixed(0)}',
+                              fmtCRC(item.effectivePrice),
                               style: theme.textTheme.titleMedium?.copyWith(
                                 fontWeight: FontWeight.w800,
                               ),
@@ -141,7 +142,7 @@ class CartScreen extends StatelessWidget {
                           style: theme.textTheme.titleMedium,
                         ),
                         Text(
-                          '\u20A1${cart.total.toStringAsFixed(0)}',
+                          fmtCRC(cart.total),
                           style: theme.textTheme.titleLarge?.copyWith(
                             fontWeight: FontWeight.w800,
                           ),

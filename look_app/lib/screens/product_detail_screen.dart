@@ -5,8 +5,11 @@ import '../models/product.dart';
 import '../models/user.dart';
 import '../providers/auth_provider.dart';
 import '../providers/cart_provider.dart';
+import '../providers/chat_provider.dart';
 import '../providers/favorites_provider.dart';
+import '../utils/currency.dart';
 import '../widgets/auth_gate.dart';
+import 'chat_screen.dart';
 
 class ProductDetailScreen extends StatelessWidget {
   final Product? product;
@@ -106,7 +109,7 @@ class ProductDetailScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    '\u20A1${_product.price.toStringAsFixed(0)}',
+                    fmtCRC(_product.price),
                     style: theme.textTheme.headlineMedium?.copyWith(
                       fontWeight: FontWeight.w800,
                     ),
@@ -221,10 +224,18 @@ class ProductDetailScreen extends StatelessWidget {
                     height: 52,
                     child: OutlinedButton.icon(
                       onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Mensaje enviado al vendedor'),
-                            behavior: SnackBarBehavior.floating,
+                        final chat = context.read<ChatProvider>();
+                        chat.startConversation(
+                          _product.sellerId,
+                          _product.sellerName,
+                          partnerAvatar: _product.sellerPhoto,
+                        );
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => ChatScreen(
+                              initialPartnerId: _product.sellerId,
+                              initialProductTitle: _product.name,
+                            ),
                           ),
                         );
                       },

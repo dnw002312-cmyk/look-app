@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/product.dart';
 import '../providers/favorites_provider.dart';
+import '../utils/currency.dart';
 
 class ProductCard extends StatelessWidget {
   final Product product;
@@ -113,7 +114,7 @@ class ProductCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text(
-                        '\u20A1${product.price.toStringAsFixed(0)}',
+                        fmtCRC(product.price),
                         style: theme.textTheme.titleSmall?.copyWith(
                           fontWeight: FontWeight.w800,
                         ),
